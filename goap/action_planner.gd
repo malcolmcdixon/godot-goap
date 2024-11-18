@@ -5,14 +5,14 @@ extends Node
 
 class_name GoapActionPlanner
 
-var _actions: Array
+var _actions: Array[GoapAction]
 
 
 #
 # set actions available for planning.
 # this can be changed in runtime for more dynamic options.
 #
-func set_actions(actions: Array):
+func set_actions(actions: Array[GoapAction]) -> void:
 	_actions = actions
 
 
@@ -20,10 +20,10 @@ func set_actions(actions: Array):
 # Receives a Goal and an optional blackboard.
 # Returns a list of actions to be executed.
 #
-func get_plan(goal: GoapGoal, blackboard = {}) -> Array:
+func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> Array:
 	print("Goal: %s" % goal.get_clazz())
 	WorldState.console_message("Goal: %s" % goal.get_clazz())
-	var desired_state = goal.get_desired_state().duplicate()
+	var desired_state: Dictionary = goal.get_desired_state().duplicate()
 
 	if desired_state.is_empty():
 		return []
@@ -32,10 +32,10 @@ func get_plan(goal: GoapGoal, blackboard = {}) -> Array:
 
 
 
-func _find_best_plan(goal, desired_state, blackboard):
+func _find_best_plan(goal: GoapGoal, desired_state: Dictionary, blackboard: Dictionary) -> Array:
   # goal is set as root action. It does feel weird
   # but the code is simpler this way.
-	var root = {
+	var root: Dictionary = {
 		"action": goal,
 		"state": desired_state,
 		"children": []
@@ -44,7 +44,7 @@ func _find_best_plan(goal, desired_state, blackboard):
   # build plans will populate root with children.
   # In case it doesn't find a valid path, it will return false.
 	if _build_plans(root, blackboard.duplicate()):
-		var plans = _transform_tree_into_array(root, blackboard)
+		var plans: Array = _transform_tree_into_array(root, blackboard)
 		return _get_cheapest_plan(plans)
 
 	return []
@@ -54,11 +54,11 @@ func _find_best_plan(goal, desired_state, blackboard):
 # Compares plan's cost and returns
 # actions included in the cheapest one.
 #
-func _get_cheapest_plan(plans):
-	var best_plan
-	for p in plans:
+func _get_cheapest_plan(plans: Array) -> Array:
+	var best_plan: Dictionary = {}
+	for p: Dictionary in plans:
 		_print_plan(p)
-		if best_plan == null or p.cost < best_plan.cost:
+		if best_plan.is_empty() or p.cost < best_plan.cost:
 			best_plan = p
 	return best_plan.actions
 
@@ -78,11 +78,11 @@ func _get_cheapest_plan(plans):
 # Be aware that for simplicity, the current implementation is not protected from
 # circular dependencies. This is easy to implement though.
 #
-func _build_plans(step, blackboard):
-	var has_followup = false
+func _build_plans(step: Dictionary, blackboard: Dictionary) -> bool:
+	var has_followup: bool = false
 
   # each node in the graph has it's own desired state.
-	var state = step.state.duplicate()
+	var state: Dictionary = step.state.duplicate()
   # checks if the blackboard contains data that can
   # satisfy the current state.
 	for s in step.state:
@@ -95,13 +95,13 @@ func _build_plans(step, blackboard):
 	if state.is_empty():
 		return true
 
-	for action in _actions:
+	for action: GoapAction in _actions:
 		if not action.is_valid():
 			continue
 
-		var should_use_action = false
-		var effects = action.get_effects()
-		var desired_state = state.duplicate()
+		var should_use_action: bool = false
+		var effects: Dictionary = action.get_effects()
+		var desired_state: Dictionary = state.duplicate()
 
 	# check if action should be used, i.e. it
 	# satisfies at least one condition from the
@@ -113,11 +113,11 @@ func _build_plans(step, blackboard):
 
 		if should_use_action:
 			# adds actions pre-conditions to the desired state
-			var preconditions = action.get_preconditions()
+			var preconditions: Dictionary = action.get_preconditions()
 			for p in preconditions:
 				desired_state[p] = preconditions[p]
 
-			var s = {
+			var s: Dictionary = {
 				"action": action,
 				"state": desired_state,
 				"children": []
@@ -141,8 +141,8 @@ func _build_plans(step, blackboard):
 #
 # Returns list of plans.
 #
-func _transform_tree_into_array(p, blackboard):
-	var plans = []
+func _transform_tree_into_array(p: Dictionary, blackboard: Dictionary) -> Array:
+	var plans: Array = []
 
 	if p.children.size() == 0:
 		plans.push_back({ "actions": [p.action], "cost": p.action.get_cost(blackboard) })
@@ -160,9 +160,9 @@ func _transform_tree_into_array(p, blackboard):
 #
 # Prints plan. Used for Debugging only.
 #
-func _print_plan(plan):
-	var actions = []
-	for a in plan.actions:
+func _print_plan(plan: Dictionary):
+	var actions: Array[String] = []
+	for a: GoapAction in plan.actions:
 		actions.push_back(a.get_clazz())
 	print({"cost": plan.cost, "actions": actions})
 	WorldState.console_message({"cost": plan.cost, "actions": actions})
