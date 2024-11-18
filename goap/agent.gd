@@ -10,12 +10,13 @@ extends Node
 
 class_name GoapAgent
 
-var _goals
-var _current_goal
+var _goals: Array[GoapGoal]
+var _current_goal: GoapGoal
 var _current_plan
-var _current_plan_step = 0
+var _current_plan_step: int = 0
 
-var _actor
+var _actor: Node
+
 
 #
 # On every loop this script checks if the current goal is still
@@ -23,12 +24,14 @@ var _actor
 # for the new high priority goal.
 #
 func _process(delta):
-	var goal = _get_best_goal()
+	
+	var goal: GoapGoal = _get_best_goal()
 	if _current_goal == null or goal != _current_goal:
+		var start_time: float = Time.get_ticks_usec()
 	# You can set in the blackboard any relevant information you want to use
 	# when calculating action costs and status. I'm not sure here is the best
 	# place to leave it, but I kept here to keep things simple.
-		var blackboard = {
+		var blackboard: Dictionary = {
 			"position": _actor.position,
 			}
 
@@ -38,11 +41,13 @@ func _process(delta):
 		_current_goal = goal
 		_current_plan = Goap.get_action_planner().get_plan(_current_goal, blackboard)
 		_current_plan_step = 0
+		prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
 	else:
 		_follow_plan(_current_plan, delta)
 
+	
 
-func init(actor, goals: Array):
+func init(actor: Node, goals: Array[GoapGoal]):
 	_actor = actor
 	_goals = goals
 
@@ -50,8 +55,8 @@ func init(actor, goals: Array):
 #
 # Returns the highest priority goal available.
 #
-func _get_best_goal():
-	var highest_priority
+func _get_best_goal() -> GoapGoal:
+	var highest_priority: GoapGoal = null
 
 	for goal in _goals:
 		if goal.is_valid() and (highest_priority == null or goal.priority() > highest_priority.priority()):

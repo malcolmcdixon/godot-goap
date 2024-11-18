@@ -20,7 +20,7 @@ func _ready():
   # dynamically. Depending on your use case you might want to
   # have a way to define different goal priorities depending on
   # npc.
-	var agent = GoapAgent.new()
+	var agent: GoapAgent = GoapAgent.new()
 	agent.init(self, [
 		KeepFirepitBurningGoal.new(),
 		KeepFedGoal.new(),
