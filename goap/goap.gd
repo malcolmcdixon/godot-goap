@@ -13,6 +13,7 @@
 #
 extends Node
 
+
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 
 # world state #
