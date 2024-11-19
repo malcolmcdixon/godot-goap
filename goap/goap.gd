@@ -12,8 +12,6 @@
 extends Node
 
 
-static var ROOT_ACTION = GoapAction.new()
-
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 
 func _ready() -> void:

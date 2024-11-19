@@ -5,6 +5,8 @@ extends Node
 
 class_name GoapActionPlanner
 
+static var ROOT_ACTION = GoapAction.new()
+
 var _actions: Array[GoapAction]
 
 
@@ -35,7 +37,7 @@ func _find_best_plan(desired_state: Dictionary, blackboard: Dictionary	) -> Arra
   # goal is set as root action. It does feel weird
   # but the code is simpler this way.
 	var root: Dictionary = {
-		"action": Goap.ROOT_ACTION,
+		"action": self.ROOT_ACTION,
 		"state": desired_state,
 		"children": []
 	}
@@ -148,19 +150,19 @@ func _build_plans(step: Dictionary, blackboard: Dictionary) -> bool:
 #
 # Returns list of plans.
 #
-func _transform_tree_into_array(p: Dictionary, blackboard: Dictionary) -> Array:
+func _transform_tree_into_array(step: Dictionary, blackboard: Dictionary) -> Array:
 	var plans: Array = []
 
-	if p.children.size() == 0:
-		plans.push_back({ "actions": [p.action], "cost": p.action.get_cost(blackboard) })
+	if step.children.size() == 0:
+		plans.push_back({ "actions": [step.action], "cost": step.action.get_cost(blackboard) })
 		return plans
 
-	for c in p.children:
-		for child_plan in _transform_tree_into_array(c, blackboard):
-			# Skip the ROOT_ACTION to avoid including it in the plan.
-			if p.action != Goap.ROOT_ACTION:
-				child_plan.actions.push_back(p.action)
-				child_plan.cost += p.action.get_cost(blackboard)
+	for child in step.children:
+		for child_plan in _transform_tree_into_array(child, blackboard):
+			# Skip the ROOT_ACTION to not include in the plan.
+			if step.action != Goap.ROOT_ACTION:
+				child_plan.actions.push_back(step.action)
+				child_plan.cost += step.action.get_cost(blackboard)
 			plans.push_back(child_plan)
 	return plans
 
