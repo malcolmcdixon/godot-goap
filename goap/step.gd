@@ -9,7 +9,7 @@ class_name GoapStep
 
 
 var action: GoapAction
-var desired_state: Dictionary
+var state: Dictionary
 var next_steps: Array[GoapStep]
 
 # Constructor to initialize the step with an action and state
