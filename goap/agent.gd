@@ -39,7 +39,7 @@ func _process(delta) -> void:
 			blackboard[s] = WorldState._state[s]
 
 		_current_goal = goal
-		_current_plan = Goap.get_action_planner().get_plan(_current_goal, blackboard)
+		_current_plan = Goap.get_action_planner().get_plan(_current_goal, blackboard).actions
 		_current_plan_step = 0
 		prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
 	else:

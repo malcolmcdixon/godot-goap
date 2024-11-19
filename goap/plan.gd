@@ -1,13 +1,18 @@
 extends RefCounted
 class_name GoapPlan
 
+static var NO_PLAN: GoapPlan
 
 var actions: Array[GoapAction]
 var cost: float
 
 
+static func _static_init() -> void:
+	NO_PLAN = GoapPlan.new()
+
+
 # Constructor to initialize the plan with actions and cost
-func _init(actions: Array = [], cost: float = 0.0) -> void:
+func _init(actions: Array[GoapAction] = [], cost: float = 0.0) -> void:
 	self.actions = actions
 	self.cost = cost
 

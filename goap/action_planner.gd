@@ -22,18 +22,18 @@ func set_actions(actions: Array[GoapAction]) -> void:
 # Receives a Goal and an optional blackboard.
 # Returns a list of actions to be executed.
 #
-func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> Array:
+func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 	print("Goal: %s" % goal.get_clazz())
 	WorldState.console_message("Goal: %s" % goal.get_clazz())
 	var desired_state: Dictionary = goal.get_desired_state().duplicate()
 
 	if desired_state.is_empty():
-		return []
+		return GoapPlan.NO_PLAN
 
 	return _find_best_plan(desired_state, blackboard)
 
 
-func _find_best_plan(desired_state: Dictionary, blackboard: Dictionary	) -> Array:
+func _find_best_plan(desired_state: Dictionary, blackboard: Dictionary	) -> GoapPlan:
 	# using a GoapStep with the ROOT_ACTION action
  	# as the root node to keep the code simple
 	var root: GoapStep = GoapStep.new(self.ROOT_ACTION, desired_state)
@@ -44,24 +44,24 @@ func _find_best_plan(desired_state: Dictionary, blackboard: Dictionary	) -> Arra
 		var plans: Array = _transform_tree_into_array(root, blackboard)
 		return _get_cheapest_plan(plans)
 
-	return []
+	return GoapPlan.NO_PLAN
 
 
 #
 # Compares plan's cost and returns
 # actions included in the cheapest one.
 #
-func _get_cheapest_plan(plans: Array) -> Array:
+func _get_cheapest_plan(plans: Array[GoapPlan]) -> GoapPlan:
 	if plans.is_empty():
-		return []
+		return GoapPlan.NO_PLAN
 
-	var best_plan: Dictionary = plans[0]
-	for plan: Dictionary in plans:
+	var best_plan: GoapPlan = plans[0]
+	for plan: GoapPlan in plans:
 		_print_plan(plan)
 		if plan.cost < best_plan.cost:
 			best_plan = plan
 
-	return best_plan.actions
+	return best_plan
 
 
 #
@@ -142,19 +142,24 @@ func _build_plans(step: GoapStep, blackboard: Dictionary) -> bool:
 #
 # Returns list of plans.
 #
-func _transform_tree_into_array(step: GoapStep, blackboard: Dictionary) -> Array:
-	var plans: Array = []
+func _transform_tree_into_array(step: GoapStep, blackboard: Dictionary) -> Array[GoapPlan]:
+	var plans: Array[GoapPlan] = []
 
 	if step.next_steps.size() == 0:
-		plans.push_back({ "actions": [step.action], "cost": step.action.get_cost(blackboard) })
+		plans.push_back( \
+			GoapPlan.new([step.action], \
+			step.action.get_cost(blackboard) \
+			) \
+		)
 		return plans
 
 	for next_step in step.next_steps:
-		for child_plan in _transform_tree_into_array(next_step, blackboard):
+		for child_plan: GoapPlan in _transform_tree_into_array(next_step, blackboard):
 			# Skip the ROOT_ACTION to not include in the plan.
 			if step.action != self.ROOT_ACTION:
-				child_plan.actions.push_back(step.action)
-				child_plan.cost += step.action.get_cost(blackboard)
+				child_plan.add_action( \
+					step.action, step.action.get_cost(blackboard) \
+				)
 			plans.push_back(child_plan)
 	return plans
 
@@ -162,9 +167,9 @@ func _transform_tree_into_array(step: GoapStep, blackboard: Dictionary) -> Array
 #
 # Prints plan. Used for Debugging only.
 #
-func _print_plan(plan: Dictionary) -> void:
+func _print_plan(plan: GoapPlan) -> void:
 	var actions: Array[String] = []
-	for a: GoapAction in plan.actions:
-		actions.push_back(a.get_clazz())
+	for action: GoapAction in plan.actions:
+		actions.push_back(action.get_clazz())
 	print({"cost": plan.cost, "actions": actions})
 	WorldState.console_message({"cost": plan.cost, "actions": actions})
