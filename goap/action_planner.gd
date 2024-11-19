@@ -5,8 +5,6 @@ extends Node
 
 class_name GoapActionPlanner
 
-static var ROOT_ACTION = GoapAction.new()
-
 var _actions: Array[GoapAction]
 
 
@@ -23,38 +21,27 @@ func set_actions(actions: Array[GoapAction]) -> void:
 # Returns a list of actions to be executed.
 #
 func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
+	# Debugging output: show the goal
 	print("Goal: %s" % goal.get_clazz())
 	WorldState.console_message("Goal: %s" % goal.get_clazz())
+
 	var desired_state: Dictionary = goal.get_desired_state().duplicate()
 
 	if desired_state.is_empty():
 		return GoapPlan.NO_PLAN
 
-	return _find_best_plan(desired_state, blackboard)
+	# using a GoapStep with the ROOT_ACTION action as the root node
+	var root: GoapStep = GoapStep.new(GoapAction.ROOT, desired_state)
 
-
-func _find_best_plan(desired_state: Dictionary, blackboard: Dictionary	) -> GoapPlan:
-	# using a GoapStep with the ROOT_ACTION action
- 	# as the root node to keep the code simple
-	var root: GoapStep = GoapStep.new(self.ROOT_ACTION, desired_state)
-
-	# build plans will populate root with children.
-	# In case it doesn't find a valid path, it will return false.
-	if _build_plans(root, blackboard.duplicate()):
-		var plans: Array = _transform_tree_into_array(root, blackboard)
-		return _get_cheapest_plan(plans)
-
-	return GoapPlan.NO_PLAN
-
-
-#
-# Compares plan's cost and returns
-# actions included in the cheapest one.
-#
-func _get_cheapest_plan(plans: Array[GoapPlan]) -> GoapPlan:
-	if plans.is_empty():
+	# Build the plans from the root node
+	# If no valid plan is found, return NO_PLAN early
+	if not _build_plans(root, blackboard.duplicate()):
 		return GoapPlan.NO_PLAN
+	
+	# Transform the action graph into a list of plans
+	var plans: Array = _transform_tree_into_array(root, blackboard)
 
+	# Return the plan with the least cost
 	var best_plan: GoapPlan = plans[0]
 	for plan: GoapPlan in plans:
 		_print_plan(plan)
@@ -156,7 +143,7 @@ func _transform_tree_into_array(step: GoapStep, blackboard: Dictionary) -> Array
 	for next_step in step.next_steps:
 		for child_plan: GoapPlan in _transform_tree_into_array(next_step, blackboard):
 			# Skip the ROOT_ACTION to not include in the plan.
-			if step.action != self.ROOT_ACTION:
+			if step.action != GoapAction.ROOT:
 				child_plan.add_action( \
 					step.action, step.action.get_cost(blackboard) \
 				)
