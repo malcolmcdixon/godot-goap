@@ -23,7 +23,7 @@ var _actor: Node
 # the highest priority. if it's not, it requests the action planner a new plan
 # for the new high priority goal.
 #
-func _process(delta):
+func _process(delta) -> void:
 	
 	var goal: GoapGoal = _get_best_goal()
 	if _current_goal == null or goal != _current_goal:
@@ -47,7 +47,7 @@ func _process(delta):
 
 	
 
-func init(actor: Node, goals: Array[GoapGoal]):
+func init(actor: Node, goals: Array[GoapGoal]) -> void:
 	_actor = actor
 	_goals = goals
 
@@ -72,7 +72,7 @@ func _get_best_goal() -> GoapGoal:
 # Every action exposes a function called perform, which will return true when
 # the job is complete, so the agent can jump to the next action in the list.
 #
-func _follow_plan(plan, delta):
+func _follow_plan(plan, delta) -> void:
 	if plan.size() == 0:
 		return
 

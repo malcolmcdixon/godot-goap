@@ -13,7 +13,7 @@ extends Node
 
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 
-func _ready():
+func _ready() -> void:
 	_action_planner.set_actions([
 		BuildFirepitAction.new(),
 		ChopTreeAction.new(),

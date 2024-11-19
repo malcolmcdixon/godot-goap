@@ -32,7 +32,11 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> Array:
 
 
 
-func _find_best_plan(goal: GoapGoal, desired_state: Dictionary, blackboard: Dictionary) -> Array:
+func _find_best_plan(
+	goal: GoapGoal, \
+	desired_state: Dictionary, \
+	blackboard: Dictionary \
+	) -> Array:
   # goal is set as root action. It does feel weird
   # but the code is simpler this way.
 	var root: Dictionary = {
@@ -160,7 +164,7 @@ func _transform_tree_into_array(p: Dictionary, blackboard: Dictionary) -> Array:
 #
 # Prints plan. Used for Debugging only.
 #
-func _print_plan(plan: Dictionary):
+func _print_plan(plan: Dictionary) -> void:
 	var actions: Array[String] = []
 	for a: GoapAction in plan.actions:
 		actions.push_back(a.get_clazz())
