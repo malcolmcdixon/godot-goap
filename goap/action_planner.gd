@@ -31,7 +31,6 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> Array:
 	return _find_best_plan(goal, desired_state, blackboard)
 
 
-
 func _find_best_plan(
 	goal: GoapGoal, \
 	desired_state: Dictionary, \
@@ -59,11 +58,15 @@ func _find_best_plan(
 # actions included in the cheapest one.
 #
 func _get_cheapest_plan(plans: Array) -> Array:
-	var best_plan: Dictionary = {}
-	for p: Dictionary in plans:
-		_print_plan(p)
-		if best_plan.is_empty() or p.cost < best_plan.cost:
-			best_plan = p
+	if plans.is_empty():
+		return []
+
+	var best_plan: Dictionary = plans[0]
+	for plan: Dictionary in plans:
+		_print_plan(plan)
+		if plan.cost < best_plan.cost:
+			best_plan = plan
+
 	return best_plan.actions
 
 
@@ -83,20 +86,20 @@ func _get_cheapest_plan(plans: Array) -> Array:
 # circular dependencies. This is easy to implement though.
 #
 func _build_plans(step: Dictionary, blackboard: Dictionary) -> bool:
-	var has_followup: bool = false
+	var found_solution: bool = false
 
   # each node in the graph has it's own desired state.
-	var state: Dictionary = step.state.duplicate()
+	var step_state: Dictionary = step.state.duplicate()
   # checks if the blackboard contains data that can
   # satisfy the current state.
-	for s in step.state:
-		if state[s] == blackboard.get(s):
-			state.erase(s)
+	for state in step.state:
+		if step_state[state] == blackboard.get(state):
+			step_state.erase(state)
 
   # if the state is empty, it means this branch already
   # found the solution, so it doesn't need to look for
   # more actions
-	if state.is_empty():
+	if step_state.is_empty():
 		return true
 
 	for action: GoapAction in _actions:
@@ -105,23 +108,23 @@ func _build_plans(step: Dictionary, blackboard: Dictionary) -> bool:
 
 		var should_use_action: bool = false
 		var effects: Dictionary = action.get_effects()
-		var desired_state: Dictionary = state.duplicate()
+		var desired_state: Dictionary = step_state.duplicate()
 
 	# check if action should be used, i.e. it
 	# satisfies at least one condition from the
 	# desired state
-		for s in desired_state:
-			if desired_state[s] == effects.get(s):
-				desired_state.erase(s)
+		for state in desired_state:
+			if desired_state[state] == effects.get(state):
+				desired_state.erase(state)
 				should_use_action = true
 
 		if should_use_action:
 			# adds actions pre-conditions to the desired state
 			var preconditions: Dictionary = action.get_preconditions()
-			for p in preconditions:
-				desired_state[p] = preconditions[p]
+			for precondition in preconditions:
+				desired_state[precondition] = preconditions[precondition]
 
-			var s: Dictionary = {
+			var new_step: Dictionary = {
 				"action": action,
 				"state": desired_state,
 				"children": []
@@ -132,11 +135,15 @@ func _build_plans(step: Dictionary, blackboard: Dictionary) -> bool:
 			# if it's not empty, _build_plans is called again (recursively) so
 			# it can try to find actions to satisfy this current state. In case
 			# it can't find anything, this action won't be included in the graph.
-			if desired_state.is_empty() or _build_plans(s, blackboard.duplicate()):
-				step.children.push_back(s)
-				has_followup = true
+			if not desired_state.is_empty():
+				found_solution = _build_plans(new_step, blackboard.duplicate())
+			else:
+				found_solution = true
+			
+			if found_solution:
+				step.children.push_back(new_step)
 
-	return has_followup
+	return found_solution
 
 
 #
