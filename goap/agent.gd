@@ -12,7 +12,7 @@ class_name GoapAgent
 
 var _goals: Array[GoapGoal]
 var _current_goal: GoapGoal
-var _current_plan
+var _current_plan: GoapPlan
 var _current_plan_step: int = 0
 
 var _actor: Node
@@ -35,12 +35,10 @@ func _process(delta: float) -> void:
 			"position": _actor.position,
 			}
 
-		#for s in Goap.state:
-			#blackboard[s] = Goap.state[s]
 		blackboard.merge(Goap.state.duplicate(true))
 
 		_current_goal = goal
-		_current_plan = Goap.get_action_planner().get_plan(_current_goal, blackboard).actions
+		_current_plan = Goap.get_action_planner().get_plan(_current_goal, blackboard)
 		_current_plan_step = 0
 		prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
 	else:
@@ -57,13 +55,17 @@ func init(actor: Node, goals: Array[GoapGoal]) -> void:
 # Returns the highest priority goal available.
 #
 func _get_best_goal() -> GoapGoal:
-	var highest_priority: GoapGoal = null
+	var best_goal: GoapGoal = null
+	var highest_priority: int = -1
+	var valid_goals = _goals.filter(func(goal): return goal.is_valid())
 
-	for goal in _goals:
-		if goal.is_valid() and (highest_priority == null or goal.priority() > highest_priority.priority()):
-			highest_priority = goal
+	for goal: GoapGoal in valid_goals:
+		var priority: int = goal.priority()
+		if priority > highest_priority:
+			highest_priority = priority
+			best_goal = goal
 
-	return highest_priority
+	return best_goal
 
 
 #
@@ -73,10 +75,10 @@ func _get_best_goal() -> GoapGoal:
 # Every action exposes a function called perform, which will return true when
 # the job is complete, so the agent can jump to the next action in the list.
 #
-func _follow_plan(plan, delta) -> void:
-	if plan.size() == 0:
+func _follow_plan(plan: GoapPlan, delta: float) -> void:
+	if plan.actions.is_empty():
 		return
 
-	var is_step_complete = plan[_current_plan_step].perform(_actor, delta)
-	if is_step_complete and _current_plan_step < plan.size() - 1:
+	var is_step_complete = plan.actions[_current_plan_step].perform(_actor, delta)
+	if is_step_complete and _current_plan_step < plan.actions.size() - 1:
 		_current_plan_step += 1
