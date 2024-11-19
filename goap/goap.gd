@@ -11,6 +11,7 @@
 #
 extends Node
 
+
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 
 func _ready() -> void:
