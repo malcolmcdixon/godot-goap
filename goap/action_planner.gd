@@ -34,16 +34,12 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> Array:
 
 
 func _find_best_plan(desired_state: Dictionary, blackboard: Dictionary	) -> Array:
-  # goal is set as root action. It does feel weird
-  # but the code is simpler this way.
-	var root: Dictionary = {
-		"action": self.ROOT_ACTION,
-		"state": desired_state,
-		"children": []
-	}
+	# using a GoapStep with the ROOT_ACTION action
+ 	# as the root node to keep the code simple
+	var root: GoapStep = GoapStep.new(self.ROOT_ACTION, desired_state)
 
-  # build plans will populate root with children.
-  # In case it doesn't find a valid path, it will return false.
+	# build plans will populate root with children.
+	# In case it doesn't find a valid path, it will return false.
 	if _build_plans(root, blackboard.duplicate()):
 		var plans: Array = _transform_tree_into_array(root, blackboard)
 		return _get_cheapest_plan(plans)
@@ -83,7 +79,7 @@ func _get_cheapest_plan(plans: Array) -> Array:
 # Be aware that for simplicity, the current implementation is not protected from
 # circular dependencies. This is easy to implement though.
 #
-func _build_plans(step: Dictionary, blackboard: Dictionary) -> bool:
+func _build_plans(step: GoapStep, blackboard: Dictionary) -> bool:
 	var found_solution: bool = false
 
   # each node in the graph has it's own desired state.
@@ -122,11 +118,7 @@ func _build_plans(step: Dictionary, blackboard: Dictionary) -> bool:
 			for precondition in preconditions:
 				desired_state[precondition] = preconditions[precondition]
 
-			var new_step: Dictionary = {
-				"action": action,
-				"state": desired_state,
-				"children": []
-				}
+			var next_step: GoapStep = GoapStep.new(action, desired_state)
 
 			# if desired state is empty, it means this action
 			# can be included in the graph.
@@ -134,12 +126,12 @@ func _build_plans(step: Dictionary, blackboard: Dictionary) -> bool:
 			# it can try to find actions to satisfy this current state. In case
 			# it can't find anything, this action won't be included in the graph.
 			if not desired_state.is_empty():
-				found_solution = _build_plans(new_step, blackboard.duplicate())
+				found_solution = _build_plans(next_step, blackboard.duplicate())
 			else:
 				found_solution = true
 			
 			if found_solution:
-				step.children.push_back(new_step)
+				step.add_next_step(next_step)
 
 	return found_solution
 
@@ -150,15 +142,15 @@ func _build_plans(step: Dictionary, blackboard: Dictionary) -> bool:
 #
 # Returns list of plans.
 #
-func _transform_tree_into_array(step: Dictionary, blackboard: Dictionary) -> Array:
+func _transform_tree_into_array(step: GoapStep, blackboard: Dictionary) -> Array:
 	var plans: Array = []
 
-	if step.children.size() == 0:
+	if step.next_steps.size() == 0:
 		plans.push_back({ "actions": [step.action], "cost": step.action.get_cost(blackboard) })
 		return plans
 
-	for child in step.children:
-		for child_plan in _transform_tree_into_array(child, blackboard):
+	for next_step in step.next_steps:
+		for child_plan in _transform_tree_into_array(next_step, blackboard):
 			# Skip the ROOT_ACTION to not include in the plan.
 			if step.action != self.ROOT_ACTION:
 				child_plan.actions.push_back(step.action)
