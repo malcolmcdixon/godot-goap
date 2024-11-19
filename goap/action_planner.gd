@@ -28,18 +28,14 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> Array:
 	if desired_state.is_empty():
 		return []
 
-	return _find_best_plan(goal, desired_state, blackboard)
+	return _find_best_plan(desired_state, blackboard)
 
 
-func _find_best_plan(
-	goal: GoapGoal, \
-	desired_state: Dictionary, \
-	blackboard: Dictionary \
-	) -> Array:
+func _find_best_plan(desired_state: Dictionary, blackboard: Dictionary	) -> Array:
   # goal is set as root action. It does feel weird
   # but the code is simpler this way.
 	var root: Dictionary = {
-		"action": goal,
+		"action": Goap.ROOT_ACTION,
 		"state": desired_state,
 		"children": []
 	}
@@ -161,7 +157,8 @@ func _transform_tree_into_array(p: Dictionary, blackboard: Dictionary) -> Array:
 
 	for c in p.children:
 		for child_plan in _transform_tree_into_array(c, blackboard):
-			if p.action.has_method("get_cost"):
+			# Skip the ROOT_ACTION to avoid including it in the plan.
+			if p.action != Goap.ROOT_ACTION:
 				child_plan.actions.push_back(p.action)
 				child_plan.cost += p.action.get_cost(blackboard)
 			plans.push_back(child_plan)

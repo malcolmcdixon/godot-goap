@@ -6,6 +6,9 @@ extends Node
 class_name GoapAction
 
 
+func get_clazz(): return "GoapAction"
+
+
 #
 # This indicates if the action should be considered or not.
 #
