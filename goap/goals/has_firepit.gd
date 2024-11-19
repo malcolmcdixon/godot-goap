@@ -6,7 +6,7 @@ func get_clazz(): return "KeepFirepitBurningGoal"
 
 
 func is_valid() -> bool:
-	return WorldState.get_elements("firepit").size() == 0
+	return SceneManager.get_elements("firepit").size() == 0
 
 
 func priority() -> int:

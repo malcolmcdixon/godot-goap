@@ -23,7 +23,8 @@ func set_actions(actions: Array[GoapAction]) -> void:
 func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 	# Debugging output: show the goal
 	print("Goal: %s" % goal.get_clazz())
-	WorldState.console_message("Goal: %s" % goal.get_clazz())
+
+	SceneManager.console_message("Goal: %s" % goal.get_clazz())
 
 	var desired_state: Dictionary = goal.get_desired_state().duplicate()
 
@@ -159,4 +160,4 @@ func _print_plan(plan: GoapPlan) -> void:
 	for action: GoapAction in plan.actions:
 		actions.push_back(action.get_clazz())
 	print({"cost": plan.cost, "actions": actions})
-	WorldState.console_message({"cost": plan.cost, "actions": actions})
+	SceneManager.console_message({"cost": plan.cost, "actions": actions})

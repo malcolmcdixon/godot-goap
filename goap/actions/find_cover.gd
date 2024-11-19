@@ -21,7 +21,7 @@ func get_effects() -> Dictionary:
 
 
 func perform(actor, delta) -> bool:
-	var closest_cover = WorldState.get_closest_element("cover", actor)
+	var closest_cover = SceneManager.get_closest_element("cover", actor)
 
 	if closest_cover == null:
 		return false
