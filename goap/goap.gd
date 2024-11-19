@@ -14,6 +14,8 @@
 extends Node
 
 
+signal state_changed(state_name: StringName, state_value: Variant)
+
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 
 # world state #
@@ -39,12 +41,13 @@ func get_action_planner() -> GoapActionPlanner:
 	return _action_planner
 
 
-func get_state(state_name, default = null) -> Variant:
+func get_state(state_name: StringName, default = null) -> Variant:
 	return _state.get(state_name, default)
 
 
-func set_state(state_name, value) -> void:
+func set_state(state_name: StringName, value: Variant) -> void:
 	_state[state_name] = value
+	state_changed.emit(state_name, value)
 
 
 func clear_state() -> void:
