@@ -16,7 +16,13 @@ var _current_plan: GoapPlan
 var _current_plan_step: int = 0
 
 var _actor: Node
+var _blackboard: Dictionary = {}
 
+
+# Connect to Goap state change signal
+func _ready() -> void:
+	Goap.state_changed.connect(_on_state_changed)
+	
 
 #
 # On every loop this script checks if the current goal is still
@@ -31,14 +37,9 @@ func _process(delta: float) -> void:
 	# You can set in the blackboard any relevant information you want to use
 	# when calculating action costs and status. I'm not sure here is the best
 	# place to leave it, but I kept here to keep things simple.
-		var blackboard: Dictionary = {
-			"position": _actor.position,
-			}
-
-		blackboard.merge(Goap.state.duplicate(true))
-
+		_blackboard["position"] = _actor.position
 		_current_goal = goal
-		_current_plan = Goap.get_action_planner().get_plan(_current_goal, blackboard)
+		_current_plan = Goap.get_action_planner().get_plan(_current_goal, _blackboard)
 		_current_plan_step = 0
 		prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
 	else:
@@ -49,6 +50,11 @@ func _process(delta: float) -> void:
 func init(actor: Node, goals: Array[GoapGoal]) -> void:
 	_actor = actor
 	_goals = goals
+
+
+# Update the blackboard with the specific state change
+func _on_state_changed(state_name: StringName, state_value: Variant) -> void:
+	_blackboard[state_name] = state_value
 
 
 #
