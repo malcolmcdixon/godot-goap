@@ -17,7 +17,7 @@ config/icon="res://icon.png"
 
 [autoload]
 
-WorldState="*res://world/world_state.gd"
+SceneManager="*res://managers/scene_manager.gd"
 Goap="*res://goap/goap.gd"
 
 [display]

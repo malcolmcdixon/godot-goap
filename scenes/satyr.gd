@@ -32,8 +32,8 @@ func _ready():
 
 
 func _process(_delta):
-	$labels/labels/afraid_label.visible = WorldState.get_state("is_frightened", false)
-	$labels/labels/hungry_label.visible = WorldState.get_state("hunger", 0) >= 50
+	$labels/labels/afraid_label.visible = Goap.get_state("is_frightened", false)
+	$labels/labels/hungry_label.visible = Goap.get_state("hunger", 0) >= 50
 
 	if is_attacking:
 		$body.play("attack")
@@ -79,7 +79,7 @@ func chop_tree(tree):
 
 
 func calm_down():
-	if WorldState.get_state("is_frightened") == false:
+	if Goap.get_state("is_frightened") == false:
 		return true
 
 	if $calm_down_timer.is_stopped():
@@ -90,8 +90,8 @@ func calm_down():
 
 func _on_detection_radius_body_entered(body):
 	if body.is_in_group("troll"):
-		WorldState.set_state("is_frightened", true)
+		Goap.set_state("is_frightened", true)
 
 
 func _on_calm_down_timer_timeout():
-	WorldState.set_state("is_frightened", false)
+	Goap.set_state("is_frightened", false)

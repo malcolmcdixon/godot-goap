@@ -21,13 +21,13 @@ func get_effects() -> Dictionary:
 
 
 func perform(actor, delta) -> bool:
-	var closest_food = WorldState.get_closest_element("food", actor)
+	var closest_food = SceneManager.get_closest_element("food", actor)
 
 	if closest_food == null:
 		return false
 
 	if closest_food.position.distance_to(actor.position) < 5:
-		WorldState.set_state("hunger", WorldState.get_state("hunger") - closest_food.nutrition)
+		Goap.set_state("hunger", Goap.get_state("hunger") - closest_food.nutrition)
 		closest_food.queue_free()
 		return true
 

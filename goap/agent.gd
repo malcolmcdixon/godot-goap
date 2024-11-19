@@ -23,7 +23,7 @@ var _actor: Node
 # the highest priority. if it's not, it requests the action planner a new plan
 # for the new high priority goal.
 #
-func _process(delta) -> void:
+func _process(delta: float) -> void:
 	
 	var goal: GoapGoal = _get_best_goal()
 	if _current_goal == null or goal != _current_goal:
@@ -35,8 +35,9 @@ func _process(delta) -> void:
 			"position": _actor.position,
 			}
 
-		for s in WorldState._state:
-			blackboard[s] = WorldState._state[s]
+		#for s in Goap.state:
+			#blackboard[s] = Goap.state[s]
+		blackboard.merge(Goap.state.duplicate(true))
 
 		_current_goal = goal
 		_current_plan = Goap.get_action_planner().get_plan(_current_goal, blackboard)

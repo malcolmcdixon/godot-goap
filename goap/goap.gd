@@ -9,12 +9,18 @@
 # This example keeps things simple, creating only one planner
 # with pre-defined actions.
 #
+# world state is also stored here for the GOAP system
+#
 extends Node
 
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 
 # world state #
 var _state: Dictionary = {}
+
+var state: Dictionary:
+	get:
+		return _state
 
 
 func _ready() -> void:
