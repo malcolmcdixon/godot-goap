@@ -160,7 +160,7 @@ func _transform_tree_into_array(step: Dictionary, blackboard: Dictionary) -> Arr
 	for child in step.children:
 		for child_plan in _transform_tree_into_array(child, blackboard):
 			# Skip the ROOT_ACTION to not include in the plan.
-			if step.action != Goap.ROOT_ACTION:
+			if step.action != self.ROOT_ACTION:
 				child_plan.actions.push_back(step.action)
 				child_plan.cost += step.action.get_cost(blackboard)
 			plans.push_back(child_plan)
