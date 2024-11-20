@@ -5,7 +5,7 @@ class_name CalmDownGoal
 func get_clazz(): return "CalmDownGoal"
 
 func is_valid() -> bool:
-	return Goap.get_state("is_frightened", false)
+	return Goap.state.get_or_default("is_frightened", false)
 
 
 func priority() -> int:
