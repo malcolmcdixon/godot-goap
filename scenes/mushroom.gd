@@ -1,3 +1,3 @@
 extends StaticBody2D
 
-@export var nutrition = 30
+@export var nutrition: int = 30

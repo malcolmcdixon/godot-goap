@@ -11,10 +11,16 @@
 #
 extends CharacterBody2D
 
-var is_moving = false
-var is_attacking = false
 
-func _ready():
+@onready var body: AnimatedSprite2D = %body
+@onready var calm_down_timer: Timer = %calm_down_timer
+@onready var labels: VBoxContainer = %labels
+@onready var detection_radius: Area2D = %detection_radius
+
+var is_moving: bool = false
+var is_attacking: bool = false
+
+func _ready() -> void:
   # Here is where I define which goals are available for this
   # npc. In this implementation, goals priority are calculated
   # dynamically. Depending on your use case you might want to
@@ -30,24 +36,28 @@ func _ready():
 	
 	add_child(agent)
 
+	# connect to signals
+	calm_down_timer.timeout.connect(_on_calm_down_timer_timeout)
+	detection_radius.body_entered.connect(_on_detection_radius_body_entered)
 
-func _process(_delta):
-	$labels/labels/afraid_label.visible = Goap.get_state("is_frightened", false)
-	$labels/labels/hungry_label.visible = Goap.get_state("hunger", 0) >= 50
+
+func _process(_delta: float) -> void:
+	labels.get_child(0).visible = Goap.get_state("hunger", 0) >= 50
+	labels.get_child(1).visible = Goap.get_state("is_frightened", false)
 
 	if is_attacking:
-		$body.play("attack")
+		body.play("attack")
 	elif is_moving:
 		is_moving = false
 	else:
-		$body.play("idle")
+		body.play("idle")
 
 
 
-func move_to(direction, delta):
+func move_to(direction: Vector2, delta: float) -> void:
 	is_moving = true
 	is_attacking = false
-	$body.play("run")
+	body.play("run")
 	if direction.x > 0:
 		turn_right()
 	else:
@@ -58,40 +68,40 @@ func move_to(direction, delta):
 
 
 
-func turn_right():
-	if not $body.flip_h:
+func turn_right() -> void:
+	if not body.flip_h:
 		return
 
-	$body.flip_h = false
+	body.flip_h = false
 
 
-func turn_left():
-	if $body.flip_h:
+func turn_left() -> void:
+	if body.flip_h:
 		return
 
-	$body.flip_h = true
+	body.flip_h = true
 
 
-func chop_tree(tree):
+func chop_tree(tree: TreeToChop) -> bool:
 	var is_finished = tree.chop()
 	is_attacking = not is_finished
 	return is_finished
 
 
-func calm_down():
+func calm_down() -> bool:
 	if Goap.get_state("is_frightened") == false:
 		return true
 
-	if $calm_down_timer.is_stopped():
-		$calm_down_timer.start()
+	if calm_down_timer.is_stopped():
+		calm_down_timer.start()
 
 	return false
 
 
-func _on_detection_radius_body_entered(body):
-	if body.is_in_group("troll"):
+func _on_detection_radius_body_entered(detected: Node2D) -> void:
+	if detected.is_in_group("troll"):
 		Goap.set_state("is_frightened", true)
 
 
-func _on_calm_down_timer_timeout():
+func _on_calm_down_timer_timeout() -> void:
 	Goap.set_state("is_frightened", false)
