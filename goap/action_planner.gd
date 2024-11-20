@@ -67,20 +67,19 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 # Be aware that for simplicity, the current implementation is not protected from
 # circular dependencies. This is easy to implement though.
 #
-func _build_plans(step: GoapStep, blackboard: Dictionary) -> bool:
+func _build_plans(step: GoapStep, blackboard: Dictionary, best_cost: int = INF) -> bool:
 	var found_solution: bool = false
 
-  # each node in the graph has it's own desired state.
+ 	# each node in the graph has it's own desired state.
 	var step_state: Dictionary = step.state.duplicate()
-  # checks if the blackboard contains data that can
-  # satisfy the current state.
+	
+	# checks if the blackboard contains data that can satisfy the current state.
 	for state in step.state:
 		if step_state[state] == blackboard.get(state):
 			step_state.erase(state)
 
-  # if the state is empty, it means this branch already
-  # found the solution, so it doesn't need to look for
-  # more actions
+	# if the state is empty, it means this branch already found the solution,
+	# so it doesn't need to look for more actions
 	if step_state.is_empty():
 		return true
 
@@ -92,34 +91,37 @@ func _build_plans(step: GoapStep, blackboard: Dictionary) -> bool:
 		var effects: Dictionary = action.get_effects()
 		var desired_state: Dictionary = step_state.duplicate()
 
-	# check if action should be used, i.e. it
-	# satisfies at least one condition from the
-	# desired state
+		# check if the action satisfies at least one condition
+		# from the desired state
 		for state in desired_state:
 			if desired_state[state] == effects.get(state):
 				desired_state.erase(state)
 				should_use_action = true
 
-		if should_use_action:
-			# adds actions pre-conditions to the desired state
-			var preconditions: Dictionary = action.get_preconditions()
-			for precondition in preconditions:
-				desired_state[precondition] = preconditions[precondition]
+		# Skip to the next action if this one is not applicable.
+		if not should_use_action:
+			continue
+		
+		# Add the action's preconditions to the desired state
+		# and create the next step.
 
-			var next_step: GoapStep = GoapStep.new(action, desired_state)
+		var preconditions: Dictionary = action.get_preconditions()
+		for precondition in preconditions:
+			desired_state[precondition] = preconditions[precondition]
 
-			# if desired state is empty, it means this action
-			# can be included in the graph.
-			# if it's not empty, _build_plans is called again (recursively) so
-			# it can try to find actions to satisfy this current state. In case
-			# it can't find anything, this action won't be included in the graph.
-			if not desired_state.is_empty():
-				found_solution = _build_plans(next_step, blackboard.duplicate())
-			else:
-				found_solution = true
-			
-			if found_solution:
-				step.add_next_step(next_step)
+		var next_step: GoapStep = GoapStep.new(action, desired_state)
+
+		# if desired state is empty, this action can be included in the graph.
+		# if it's not empty, _build_plans is called again (recursively) so
+		# it can try to find actions to satisfy the desired state.
+		# If it can't find anything, this action won't be included in the graph.
+		if not desired_state.is_empty():
+			found_solution = _build_plans(next_step, blackboard.duplicate())
+		else:
+			found_solution = true
+		
+		if found_solution:
+			step.add_next_step(next_step)
 
 	return found_solution
 
