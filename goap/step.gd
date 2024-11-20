@@ -11,6 +11,8 @@ class_name GoapStep
 var action: GoapAction
 var state: Dictionary
 var next_steps: Array[GoapStep]
+var cost: int
+
 
 # Constructor to initialize the step with an action and state
 func _init(step_action: GoapAction, step_state: Dictionary) -> void:
