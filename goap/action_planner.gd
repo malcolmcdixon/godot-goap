@@ -5,6 +5,9 @@ extends Node
 
 class_name GoapActionPlanner
 
+
+const INT_INF: int = 9223372036854775807
+
 var _actions: Array[GoapAction]
 
 
@@ -67,7 +70,11 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 # Be aware that for simplicity, the current implementation is not protected from
 # circular dependencies. This is easy to implement though.
 #
-func _build_plans(step: GoapStep, blackboard: Dictionary, best_cost: int = INF) -> bool:
+func _build_plans( \
+	step: GoapStep, \
+	blackboard: Dictionary, \
+	best_cost: int = INT_INF \
+) -> bool:
 	var found_solution: bool = false
 
  	# each node in the graph has it's own desired state.
