@@ -30,22 +30,25 @@ func _ready() -> void:
 # for the new high priority goal.
 #
 func _process(delta: float) -> void:
-	
+	# Check if we need a new plan; otherwise, follow the current one.
 	var goal: GoapGoal = _get_best_goal()
-	if _current_goal == null or goal != _current_goal:
-		var start_time: float = Time.get_ticks_usec()
-	# You can set in the blackboard any relevant information you want to use
-	# when calculating action costs and status. I'm not sure here is the best
-	# place to leave it, but I kept here to keep things simple.
-		_blackboard["position"] = _actor.position
-		_current_goal = goal
-		_current_plan = Goap.get_action_planner().get_plan(_current_goal, _blackboard)
-		_current_plan_step = 0
-		prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
+	if goal != _current_goal:
+		_make_plan(goal)
 	else:
 		_follow_plan(_current_plan, delta)
 
-	
+
+func _make_plan(goal: GoapGoal) -> void:
+	_current_goal = goal
+	# You can set in the blackboard any relevant information you want to use
+	# when calculating action costs and status. I'm not sure here is the best
+	# place to leave it, but I kept here to keep things simple.
+	_blackboard["position"] = _actor.position
+	var start_time: float = Time.get_ticks_usec()
+	_current_plan = Goap.get_action_planner().get_plan(_current_goal, _blackboard)
+	prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
+	_current_plan_step = 0
+
 
 func init(actor: Node, goals: Array[GoapGoal]) -> void:
 	_actor = actor
