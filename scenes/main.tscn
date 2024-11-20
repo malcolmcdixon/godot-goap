@@ -4406,6 +4406,7 @@ layout_mode = 2
 text = "Hunger"
 
 [node name="hunger" type="ProgressBar" parent="HUD/VBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_vertical = 4
@@ -4417,6 +4418,7 @@ size_flags_vertical = 0
 text = "Reload"
 
 [node name="pause" type="Button" parent="HUD/VBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
 process_mode = 3
 layout_mode = 2
 size_flags_horizontal = 8
@@ -4424,6 +4426,7 @@ size_flags_vertical = 0
 text = "Pause"
 
 [node name="console" type="Button" parent="HUD/VBoxContainer/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
 process_mode = 3
 layout_mode = 2
 size_flags_horizontal = 8
@@ -4439,6 +4442,7 @@ size_flags_vertical = 0
 
 [node name="TextEdit" type="TextEdit" parent="HUD/console_container" groups=["console"]]
 process_mode = 3
+visible = false
 modulate = Color(1, 1, 1, 0.752941)
 custom_minimum_size = Vector2(150, 50)
 layout_mode = 2

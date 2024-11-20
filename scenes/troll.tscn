@@ -81,6 +81,7 @@ collision_mask = 0
 script = ExtResource("2")
 
 [node name="body" type="AnimatedSprite2D" parent="."]
+unique_name_in_owner = true
 texture_filter = 1
 position = Vector2(0, -12)
 sprite_frames = SubResource("9")
@@ -91,12 +92,13 @@ position = Vector2(0, -7)
 shape = SubResource("10")
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
+visible = false
 position = Vector2(0, -7)
+enabled = false
 target_position = Vector2(10, 0)
 collision_mask = 6
 
 [node name="rest_timer" type="Timer" parent="."]
+unique_name_in_owner = true
 wait_time = 3.0
 one_shot = true
-
-[connection signal="timeout" from="rest_timer" to="." method="_on_rest_timer_timeout"]
