@@ -20,10 +20,12 @@ var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 
 # world state #
 var _state: Dictionary = {}
+var observable_state: ObservableDictionary = ObservableDictionary.new()
 
 var state: Dictionary:
 	get:
 		return _state
+
 
 
 func _ready() -> void:

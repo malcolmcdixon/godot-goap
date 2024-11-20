@@ -43,7 +43,8 @@ func _make_plan(goal: GoapGoal) -> void:
 	# You can set in the blackboard any relevant information you want to use
 	# when calculating action costs and status. I'm not sure here is the best
 	# place to leave it, but I kept here to keep things simple.
-	_blackboard["position"] = _actor.position
+	#_blackboard["position"] = _actor.position
+	_blackboard.position = _actor.position
 	var start_time: float = Time.get_ticks_usec()
 	_current_plan = Goap.get_action_planner().get_plan(_current_goal, _blackboard)
 	prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)

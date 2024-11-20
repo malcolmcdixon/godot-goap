@@ -6,12 +6,18 @@ extends Node2D
 @onready var _console_button: Button = %console
 
 
+func _ready() -> void:
+	#Goap.state_changed.connect(func(state_name, state_value): prints(state_name, state_value))
+	Goap.observable_state.changed.connect(func(key, value): prints("observable dictionary:", key, value))
+
+
 func _on_hanger_timer_timeout() -> void:
 	_hunger_field.value = Goap.get_state("hunger", 0)
 	if _hunger_field.value < 100:
 		_hunger_field.value += 2
 
 	Goap.set_state("hunger", _hunger_field.value)
+	Goap.observable_state.hunger = _hunger_field.value
 
 
 func _on_reload_pressed() -> void:
