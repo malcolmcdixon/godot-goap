@@ -4292,99 +4292,116 @@ tile_set = SubResource("2")
 format = 2
 layer_0/tile_data = PackedInt32Array(-65531, 16, 0, -65530, 16, 0, 65537, 9, 0, 65545, 2, 0, 65552, 10, 0, 65560, 0, 0, 65561, 0, 0, 131074, 10, 0, 131090, 9, 0, 131096, 6, 0, 196630, 3, 0, 196634, 0, 0, 196635, 0, 0, 262157, 4, 0, 262168, 20, 0, 327686, 3, 0, 327693, 3, 0, 327703, 12, 0, 327704, 11, 0, 327706, 2, 0, 393217, 21, 0, 393226, 2, 0, 393243, 21, 0, 458755, 3, 0, 524303, 4, 0, 524305, 3, 0, 524312, 3, 0, 524315, 2, 0, 720897, 21, 0, 720923, 21, 0, 786445, 3, 0, 786449, 3, 0, 851993, 4, 0, 917506, 3, 0, 917526, 10, 0, 917532, 19, 0, 983051, 3, 0, 983062, 4, 0, 983067, 20, 0)
 
-[node name="tree" parent="." instance=ExtResource("5")]
+[node name="Trees" type="Node2D" parent="."]
+
+[node name="tree" parent="Trees" instance=ExtResource("5")]
 position = Vector2(159, 62)
 
-[node name="tree2" parent="." instance=ExtResource("5")]
+[node name="tree2" parent="Trees" instance=ExtResource("5")]
 position = Vector2(175, 59)
 
-[node name="tree3" parent="." instance=ExtResource("5")]
+[node name="tree3" parent="Trees" instance=ExtResource("5")]
 position = Vector2(188, 65)
 
-[node name="tree4" parent="." instance=ExtResource("5")]
+[node name="tree4" parent="Trees" instance=ExtResource("5")]
 position = Vector2(308, 99)
 
-[node name="tree5" parent="." instance=ExtResource("5")]
+[node name="tree5" parent="Trees" instance=ExtResource("5")]
 position = Vector2(291, 99)
 
-[node name="tree6" parent="." instance=ExtResource("5")]
+[node name="tree6" parent="Trees" instance=ExtResource("5")]
 position = Vector2(276, 87)
 
-[node name="tree7" parent="." instance=ExtResource("5")]
+[node name="tree7" parent="Trees" instance=ExtResource("5")]
 position = Vector2(282, 220)
 
-[node name="tree8" parent="." instance=ExtResource("5")]
+[node name="tree8" parent="Trees" instance=ExtResource("5")]
 position = Vector2(297, 221)
 
-[node name="tree9" parent="." instance=ExtResource("5")]
+[node name="tree9" parent="Trees" instance=ExtResource("5")]
 position = Vector2(289, 240)
 
-[node name="tree10" parent="." instance=ExtResource("5")]
+[node name="tree10" parent="Trees" instance=ExtResource("5")]
 position = Vector2(94, 158)
 
-[node name="tree11" parent="." instance=ExtResource("5")]
+[node name="tree11" parent="Trees" instance=ExtResource("5")]
 position = Vector2(107, 158)
 
-[node name="tree12" parent="." instance=ExtResource("5")]
+[node name="tree12" parent="Trees" instance=ExtResource("5")]
 position = Vector2(100, 170)
 
-[node name="tree13" parent="." instance=ExtResource("5")]
+[node name="tree13" parent="Trees" instance=ExtResource("5")]
 position = Vector2(49, 79)
 
-[node name="tree14" parent="." instance=ExtResource("5")]
+[node name="tree14" parent="Trees" instance=ExtResource("5")]
 position = Vector2(42, 84)
 
-[node name="tree15" parent="." instance=ExtResource("5")]
+[node name="tree15" parent="Trees" instance=ExtResource("5")]
 position = Vector2(55, 84)
 
-[node name="wood_stock" parent="." instance=ExtResource("6")]
+[node name="WoodStocks" type="Node2D" parent="."]
+
+[node name="wood_stock" parent="WoodStocks" instance=ExtResource("6")]
 position = Vector2(151, 109)
 
-[node name="wood_stock2" parent="." instance=ExtResource("6")]
+[node name="wood_stock2" parent="WoodStocks" instance=ExtResource("6")]
 position = Vector2(167, 109)
 
-[node name="wood_stock3" parent="." instance=ExtResource("6")]
+[node name="wood_stock3" parent="WoodStocks" instance=ExtResource("6")]
 position = Vector2(160, 95)
 
-[node name="wood_stock4" parent="." instance=ExtResource("6")]
+[node name="wood_stock4" parent="WoodStocks" instance=ExtResource("6")]
 position = Vector2(332, 151)
 
-[node name="wood_stock5" parent="." instance=ExtResource("6")]
+[node name="wood_stock5" parent="WoodStocks" instance=ExtResource("6")]
 position = Vector2(157, 217)
 
-[node name="wood_stock6" parent="." instance=ExtResource("6")]
+[node name="wood_stock6" parent="WoodStocks" instance=ExtResource("6")]
 position = Vector2(422, 217)
 
-[node name="mushroom" parent="." instance=ExtResource("7")]
+[node name="Mushrooms" type="Node2D" parent="."]
+
+[node name="mushroom" parent="Mushrooms" instance=ExtResource("7")]
 position = Vector2(138, 26)
 
-[node name="mushroom2" parent="." instance=ExtResource("7")]
+[node name="mushroom2" parent="Mushrooms" instance=ExtResource("7")]
 position = Vector2(158, 26)
 
-[node name="mushroom3" parent="." instance=ExtResource("7")]
+[node name="mushroom3" parent="Mushrooms" instance=ExtResource("7")]
 position = Vector2(247, 65)
 
-[node name="mushroom4" parent="." instance=ExtResource("7")]
+[node name="mushroom4" parent="Mushrooms" instance=ExtResource("7")]
 position = Vector2(368, 178)
 
-[node name="mushroom7" parent="." instance=ExtResource("7")]
+[node name="mushroom7" parent="Mushrooms" instance=ExtResource("7")]
 position = Vector2(347, 106)
 
-[node name="mushroom5" parent="." instance=ExtResource("7")]
+[node name="mushroom5" parent="Mushrooms" instance=ExtResource("7")]
 position = Vector2(329, 200)
 nutrition = 10
 
-[node name="mushroom6" parent="." instance=ExtResource("7")]
+[node name="mushroom6" parent="Mushrooms" instance=ExtResource("7")]
 position = Vector2(187, 251)
+
+[node name="Covers" type="Node2D" parent="."]
+
+[node name="cover" parent="Covers" instance=ExtResource("9")]
+position = Vector2(108, 32)
+
+[node name="cover2" parent="Covers" instance=ExtResource("9")]
+position = Vector2(400, 145)
+
+[node name="cover3" parent="Covers" instance=ExtResource("9")]
+position = Vector2(230, 230)
+
+[node name="firepit_spot" type="Marker2D" parent="." groups=["firepit_spot"]]
+position = Vector2(189.468, 165.449)
 
 [node name="satyr" parent="." instance=ExtResource("4")]
 position = Vector2(165.003, 153.876)
 
 [node name="troll" parent="." instance=ExtResource("3")]
 position = Vector2(72, 33)
-
-[node name="hunger_timer" type="Timer" parent="."]
-autostart = true
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
@@ -4454,19 +4471,10 @@ editable = false
 shortcut_keys_enabled = false
 virtual_keyboard_enabled = false
 
-[node name="cover" parent="." instance=ExtResource("9")]
-position = Vector2(108, 32)
+[node name="hunger_timer" type="Timer" parent="."]
+autostart = true
 
-[node name="cover2" parent="." instance=ExtResource("9")]
-position = Vector2(400, 145)
-
-[node name="cover3" parent="." instance=ExtResource("9")]
-position = Vector2(230, 230)
-
-[node name="firepit_spot" type="Marker2D" parent="." groups=["firepit_spot"]]
-position = Vector2(189.468, 165.449)
-
-[connection signal="timeout" from="hunger_timer" to="." method="_on_hanger_timer_timeout"]
 [connection signal="pressed" from="HUD/VBoxContainer/MarginContainer/HBoxContainer/reload" to="." method="_on_reload_pressed"]
 [connection signal="pressed" from="HUD/VBoxContainer/MarginContainer/HBoxContainer/pause" to="." method="_on_pause_pressed"]
 [connection signal="pressed" from="HUD/VBoxContainer/MarginContainer/HBoxContainer/console" to="." method="_on_console_pressed"]
+[connection signal="timeout" from="hunger_timer" to="." method="_on_hanger_timer_timeout"]
