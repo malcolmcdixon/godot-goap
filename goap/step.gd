@@ -13,9 +13,9 @@ var state: Dictionary
 var next_steps: Array[GoapStep]
 
 # Constructor to initialize the step with an action and state
-func _init(action: GoapAction, state: Dictionary) -> void:
-	self.action = action
-	self.state = state
+func _init(step_action: GoapAction, step_state: Dictionary) -> void:
+	self.action = step_action
+	self.state = step_state
 	self.next_steps = []
 
 
