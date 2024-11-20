@@ -32,7 +32,7 @@ func perform(actor, delta) -> bool:
 	if closest_stock:
 		if closest_stock.position.distance_to(actor.position) < 10:
 			closest_stock.queue_free()
-			Goap.set_state("has_wood", true)
+			Goap.state.has_wood = true
 			return true
 		else:
 			actor.move_to(actor.position.direction_to(closest_stock.position), delta)

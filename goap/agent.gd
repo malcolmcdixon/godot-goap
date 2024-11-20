@@ -21,7 +21,7 @@ var _blackboard: Dictionary = {}
 
 # Connect to Goap state change signal
 func _ready() -> void:
-	Goap.state_changed.connect(_on_state_changed)
+	Goap.state.changed.connect(_on_state_changed)
 	
 
 #

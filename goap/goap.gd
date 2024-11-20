@@ -14,18 +14,10 @@
 extends Node
 
 
-signal state_changed(state_name: StringName, state_value: Variant)
-
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 
 # world state #
-var _state: Dictionary = {}
-var observable_state: ObservableDictionary = ObservableDictionary.new()
-
-var state: Dictionary:
-	get:
-		return _state
-
+var state: ObservableDictionary = ObservableDictionary.new()
 
 
 func _ready() -> void:
@@ -41,16 +33,3 @@ func _ready() -> void:
 
 func get_action_planner() -> GoapActionPlanner:
 	return _action_planner
-
-
-func get_state(state_name: StringName, default = null) -> Variant:
-	return _state.get(state_name, default)
-
-
-func set_state(state_name: StringName, value: Variant) -> void:
-	_state[state_name] = value
-	state_changed.emit(state_name, value)
-
-
-func clear_state() -> void:
-	_state = {}

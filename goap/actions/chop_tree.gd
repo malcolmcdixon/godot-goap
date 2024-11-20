@@ -32,7 +32,7 @@ func perform(actor, delta) -> bool:
 	if _closest_tree:
 		if _closest_tree.position.distance_to(actor.position) < 10:
 				if actor.chop_tree(_closest_tree):
-					Goap.set_state("has_wood", true)
+					Goap.state.has_wood = true
 					return true
 				return false
 		else:
