@@ -12,9 +12,9 @@ static func _static_init() -> void:
 
 
 # Constructor to initialize the plan with actions and cost
-func _init(actions: Array[GoapAction] = [], cost: float = 0.0) -> void:
-	self.actions = actions
-	self.cost = cost
+func _init(plan_actions: Array[GoapAction] = [], plan_cost: float = 0.0) -> void:
+	self.actions = plan_actions
+	self.cost = plan_cost
 
 
 # Add action to the plan and update cost
