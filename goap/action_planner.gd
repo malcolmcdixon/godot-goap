@@ -35,7 +35,7 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 		return GoapPlan.NO_PLAN
 
 	# using a GoapStep with the ROOT_ACTION action as the root node
-	var root: GoapStep = GoapStep.new(GoapAction.ROOT, desired_state)
+	#var root: GoapStep = GoapStep.new(GoapAction.ROOT, desired_state)
 
 	# Build the plans from the root node
 	# If no valid plan is found, return NO_PLAN early
@@ -56,7 +56,10 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 	# Return the plan with the least cost
 	#var best_plan: GoapPlan = plans[0]
 	for plan: GoapPlan in plans:
+		print("=================================================================")
+		print("Returned Plans:")
 		_print_plan(plan)
+		print("=================================================================")
 		#if plan.cost < best_plan.cost:
 			#best_plan = plan
 #
@@ -79,67 +82,67 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 # Be aware that for simplicity, the current implementation is not protected from
 # circular dependencies. This is easy to implement though.
 #
-func _build_plans( \
-	step: GoapStep, \
-	blackboard: Dictionary, \
-	best_cost: int = INT_INF \
-) -> bool:
-	var found_solution: bool = false
-
- 	# each node in the graph has it's own desired state.
-	var step_state: Dictionary = step.state.duplicate()
-	
-	# checks if the blackboard contains data that can satisfy the current state.
-	for state in step.state:
-		if step_state[state] == blackboard.get(state):
-			step_state.erase(state)
-
-	# if the state is empty, it means this branch already found the solution,
-	# so it doesn't need to look for more actions
-	if step_state.is_empty():
-		return true
-
-	for action: GoapAction in _actions:
-		if not action.is_valid():
-			continue
-
-		var should_use_action: bool = false
-		var effects: Dictionary = action.get_effects()
-		var desired_state: Dictionary = step_state.duplicate()
-
-		# check if the action satisfies at least one condition
-		# from the desired state
-		for state in desired_state:
-			if desired_state[state] == effects.get(state):
-				desired_state.erase(state)
-				should_use_action = true
-
-		# Skip to the next action if this one is not applicable.
-		if not should_use_action:
-			continue
-		
-		# Add the action's preconditions to the desired state
-		# and create the next step.
-
-		var preconditions: Dictionary = action.get_preconditions()
-		for precondition in preconditions:
-			desired_state[precondition] = preconditions[precondition]
-
-		var next_step: GoapStep = GoapStep.new(action, desired_state)
-
-		# if desired state is empty, this action can be included in the graph.
-		# if it's not empty, _build_plans is called again (recursively) so
-		# it can try to find actions to satisfy the desired state.
-		# If it can't find anything, this action won't be included in the graph.
-		if not desired_state.is_empty():
-			found_solution = _build_plans(next_step, blackboard.duplicate())
-		else:
-			found_solution = true
-		
-		if found_solution:
-			step.add_next_step(next_step)
-
-	return found_solution
+#func _build_plans( \
+	#step: GoapStep, \
+	#blackboard: Dictionary, \
+	#best_cost: int = INT_INF \
+#) -> bool:
+	#var found_solution: bool = false
+#
+ 	## each node in the graph has it's own desired state.
+	#var step_state: Dictionary = step.state.duplicate()
+	#
+	## checks if the blackboard contains data that can satisfy the current state.
+	#for state in step.state:
+		#if step_state[state] == blackboard.get(state):
+			#step_state.erase(state)
+#
+	## if the state is empty, it means this branch already found the solution,
+	## so it doesn't need to look for more actions
+	#if step_state.is_empty():
+		#return true
+#
+	#for action: GoapAction in _actions:
+		#if not action.is_valid():
+			#continue
+#
+		#var should_use_action: bool = false
+		#var effects: Dictionary = action.get_effects()
+		#var desired_state: Dictionary = step_state.duplicate()
+#
+		## check if the action satisfies at least one condition
+		## from the desired state
+		#for state in desired_state:
+			#if desired_state[state] == effects.get(state):
+				#desired_state.erase(state)
+				#should_use_action = true
+#
+		## Skip to the next action if this one is not applicable.
+		#if not should_use_action:
+			#continue
+		#
+		## Add the action's preconditions to the desired state
+		## and create the next step.
+#
+		#var preconditions: Dictionary = action.get_preconditions()
+		#for precondition in preconditions:
+			#desired_state[precondition] = preconditions[precondition]
+#
+		#var next_step: GoapStep = GoapStep.new(action, desired_state)
+#
+		## if desired state is empty, this action can be included in the graph.
+		## if it's not empty, _build_plans is called again (recursively) so
+		## it can try to find actions to satisfy the desired state.
+		## If it can't find anything, this action won't be included in the graph.
+		#if not desired_state.is_empty():
+			#found_solution = _build_plans(next_step, blackboard.duplicate())
+		#else:
+			#found_solution = true
+		#
+		#if found_solution:
+			#step.add_next_step(next_step)
+#
+	#return found_solution
 
 
 #
@@ -148,26 +151,26 @@ func _build_plans( \
 #
 # Returns list of plans.
 #
-func _transform_tree_into_array(step: GoapStep, blackboard: Dictionary) -> Array[GoapPlan]:
-	var plans: Array[GoapPlan] = []
-
-	if step.next_steps.size() == 0:
-		plans.push_back( \
-			GoapPlan.new([step.action], \
-			step.action.get_cost(blackboard) \
-			) \
-		)
-		return plans
-
-	for next_step in step.next_steps:
-		for child_plan: GoapPlan in _transform_tree_into_array(next_step, blackboard):
-			# Skip the ROOT_ACTION to not include in the plan.
-			if step.action != GoapAction.ROOT:
-				child_plan.add_action( \
-					step.action, step.action.get_cost(blackboard) \
-				)
-			plans.push_back(child_plan)
-	return plans
+#func _transform_tree_into_array(step: GoapStep, blackboard: Dictionary) -> Array[GoapPlan]:
+	#var plans: Array[GoapPlan] = []
+#
+	#if step.next_steps.size() == 0:
+		#plans.push_back( \
+			#GoapPlan.new([step.action], \
+			#step.action.get_cost(blackboard) \
+			#) \
+		#)
+		#return plans
+#
+	#for next_step in step.next_steps:
+		#for child_plan: GoapPlan in _transform_tree_into_array(next_step, blackboard):
+			## Skip the ROOT_ACTION to not include in the plan.
+			#if step.action != GoapAction.ROOT:
+				#child_plan.add_action( \
+					#step.action, step.action.get_cost(blackboard) \
+				#)
+			#plans.push_back(child_plan)
+	#return plans
 
 
 func _build_plans_new(
@@ -180,6 +183,10 @@ func _build_plans_new(
 
 	# Prune this branch if the plan's cost exceeds the best cost so far
 	if plan.cost >= best_cost:
+		print("=================================================================")
+		print("Pruning plan:")
+		_print_plan(plan)
+		print("=================================================================")
 		return plans
 
 	# If desired state is empty, we have a valid plan
@@ -194,6 +201,7 @@ func _build_plans_new(
 
 		var effects: Dictionary = action.get_effects()
 		var updated_state: Dictionary = desired_state.duplicate()
+		#prints("Updated State:", updated_state, "Blackboard:", blackboard)
 		var action_used: bool = false
 
 		# Check if this action satisfies any condition
@@ -204,6 +212,15 @@ func _build_plans_new(
 
 		# Skip this action if it doesn't satisfy any condition
 		if not action_used:
+			continue
+
+		# Skip this action as it leads to an expensive plan
+		if plan.cost + action.get_cost(blackboard) >= best_cost:
+			print("=================================================================")
+			print("Pruning plan:")
+			_print_plan(plan)
+			prints("Expensive Action:", action.get_clazz(), action.get_cost(blackboard))
+			print("=================================================================")
 			continue
 
 		# Add preconditions to the updated state
