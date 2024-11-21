@@ -48,7 +48,7 @@ func _make_plan(goal: GoapGoal) -> void:
 	var start_time: float = Time.get_ticks_usec()
 	_current_plan = Goap.get_action_planner().get_plan(_current_goal, _blackboard)
 	# Reverse the actions array to ensure execution order
-	_current_plan.actions.reverse()
+	#_current_plan.actions.reverse()
 	prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
 	_current_plan_step = 0
 
