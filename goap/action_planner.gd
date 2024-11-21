@@ -180,28 +180,17 @@ func _build_plans_new(
 	best_cost: int = INT_INF
 ) -> Array[GoapPlan]:
 	var plans: Array[GoapPlan] = []
-
-	# Prune this branch if the plan's cost exceeds the best cost so far
-	if plan.cost >= best_cost:
-		print("=================================================================")
-		print("Pruning plan:")
-		_print_plan(plan)
-		print("=================================================================")
-		return plans
-
-	# If desired state is empty, we have a valid plan
-	if desired_state.is_empty():
-		plans.append(plan)
-		return plans
-
 	# Iterate through available actions
 	for action: GoapAction in _actions:
+		# Check if the action has already been added to the plan
+		if plan.actions.has(action):
+			continue 
+
 		if not action.is_valid():
 			continue
 
 		var effects: Dictionary = action.get_effects()
 		var updated_state: Dictionary = desired_state.duplicate()
-		#prints("Updated State:", updated_state, "Blackboard:", blackboard)
 		var action_used: bool = false
 
 		# Check if this action satisfies any condition
@@ -228,12 +217,20 @@ func _build_plans_new(
 		for precondition in preconditions:
 			updated_state[precondition] = preconditions[precondition]
 
+		# Add the action to the current plan
+		plan.add_action(action, action.get_cost(blackboard))
+
+		# If the updated state is empty, we have a valid plan
+		if updated_state.is_empty():
+			plans.append(plan)
+			return plans
+			
 		# Create a new plan with this action added
 		var new_plan: GoapPlan = plan.duplicate()
-		new_plan.add_action(action, action.get_cost(blackboard))
 
 		# Recursively build plans from the new state
-		var child_plans: Array[GoapPlan] = _build_plans_new(new_plan, updated_state, blackboard, best_cost)
+		var child_plans: Array[GoapPlan] = \
+			_build_plans_new(new_plan, updated_state, blackboard, best_cost)
 		for child_plan in child_plans:
 			plans.append(child_plan)
 
