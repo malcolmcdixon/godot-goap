@@ -39,20 +39,29 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 
 	# Build the plans from the root node
 	# If no valid plan is found, return NO_PLAN early
-	if not _build_plans(root, blackboard.duplicate()):
+	#if not _build_plans(root, blackboard.duplicate()):
+		#return GoapPlan.NO_PLAN
+	var plans: Array[GoapPlan] = \
+		_build_plans_new(GoapPlan.new(), desired_state, blackboard.duplicate())
+	
+	if plans.is_empty():
 		return GoapPlan.NO_PLAN
 	
 	# Transform the action graph into a list of plans
-	var plans: Array = _transform_tree_into_array(root, blackboard)
+	#var plans: Array = _transform_tree_into_array(root, blackboard)
 
+	# Sort plans in order of cost
+	if plans.size() > 1:
+		plans.sort_custom(func(a, b): return a.cost < b.cost)
 	# Return the plan with the least cost
-	var best_plan: GoapPlan = plans[0]
+	#var best_plan: GoapPlan = plans[0]
 	for plan: GoapPlan in plans:
 		_print_plan(plan)
-		if plan.cost < best_plan.cost:
-			best_plan = plan
-
-	return best_plan
+		#if plan.cost < best_plan.cost:
+			#best_plan = plan
+#
+	#return best_plan
+	return plans[0]
 
 
 #
@@ -158,6 +167,63 @@ func _transform_tree_into_array(step: GoapStep, blackboard: Dictionary) -> Array
 					step.action, step.action.get_cost(blackboard) \
 				)
 			plans.push_back(child_plan)
+	return plans
+
+
+func _build_plans_new(
+	plan: GoapPlan, 
+	desired_state: Dictionary, 
+	blackboard: Dictionary, 
+	best_cost: int = INT_INF
+) -> Array[GoapPlan]:
+	var plans: Array[GoapPlan] = []
+
+	# Prune this branch if the plan's cost exceeds the best cost so far
+	if plan.cost >= best_cost:
+		return plans
+
+	# If desired state is empty, we have a valid plan
+	if desired_state.is_empty():
+		plans.append(plan)
+		return plans
+
+	# Iterate through available actions
+	for action: GoapAction in _actions:
+		if not action.is_valid():
+			continue
+
+		var effects: Dictionary = action.get_effects()
+		var updated_state: Dictionary = desired_state.duplicate()
+		var action_used: bool = false
+
+		# Check if this action satisfies any condition
+		for key in desired_state:
+			if updated_state[key] == effects.get(key):
+				updated_state.erase(key)
+				action_used = true
+
+		# Skip this action if it doesn't satisfy any condition
+		if not action_used:
+			continue
+
+		# Add preconditions to the updated state
+		var preconditions: Dictionary = action.get_preconditions()
+		for precondition in preconditions:
+			updated_state[precondition] = preconditions[precondition]
+
+		# Create a new plan with this action added
+		var new_plan: GoapPlan = plan.duplicate()
+		new_plan.add_action(action, action.get_cost(blackboard))
+
+		# Recursively build plans from the new state
+		var child_plans: Array[GoapPlan] = _build_plans_new(new_plan, updated_state, blackboard, best_cost)
+		for child_plan in child_plans:
+			plans.append(child_plan)
+
+			# Update best_cost if a better plan is found
+			if child_plan.cost < best_cost:
+				best_cost = child_plan.cost
+
 	return plans
 
 
