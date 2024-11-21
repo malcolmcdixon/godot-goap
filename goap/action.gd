@@ -6,13 +6,6 @@ extends Node
 class_name GoapAction
 
 
-static var ROOT: GoapAction
-
-
-static func _static_init() -> void:
-	ROOT = GoapAction.new()
-
-
 func get_clazz(): return "GoapAction"
 
 
