@@ -21,3 +21,11 @@ func _init(plan_actions: Array[GoapAction] = [], plan_cost: float = 0.0) -> void
 func add_action(action: GoapAction, action_cost: float) -> void:
 	actions.append(action)
 	cost += action_cost
+
+
+# Duplicate method
+func duplicate() -> GoapPlan:
+	var plan = GoapPlan.new()
+	plan.actions = self.actions.duplicate()
+	plan.cost = self.cost
+	return plan
