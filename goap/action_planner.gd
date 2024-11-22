@@ -9,7 +9,7 @@ class_name GoapActionPlanner
 const INT_INF: int = 9223372036854775807
 
 var _actions: Array[GoapAction] = []
-#var _plans: Array[GoapPlan] = []
+
 
 #
 # set actions available for planning.
@@ -34,24 +34,15 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 	if desired_state.is_empty():
 		return GoapPlan.NO_PLAN
 
-	# Clear any previous plans
-	#_plans.clear()
 	var plans: Array[GoapPlan] = []
 	# Build plans for the desired state
 	_build_plans(GoapPlan.new(), desired_state, blackboard.duplicate(), plans)
 	
 	# If no valid plans return NO_PLAN early
-	#if _plans.is_empty():
 	if plans.is_empty():
 		return GoapPlan.NO_PLAN
 	
-	# Debug print plans
-	#for plan: GoapPlan in _plans:
-	for plan: GoapPlan in plans:
-		_print_plan(plan)
-	
 	# Return best_plan, which is the last one in the array
-	#return _plans[-1]
 	return plans[-1]
 
 
@@ -81,7 +72,7 @@ func _build_plans(
 		func(action: GoapAction):
 			# Check if the action has already been added to the plan or is invalid
 			if plan.actions.has(action) or \
-				#not action.is_valid() or \
+				not action.is_valid() or \
 				plan.cost + action.get_cost(blackboard) >= best_cost:
 					return false
 			var effects: Dictionary = action.get_effects()
@@ -122,7 +113,6 @@ func _build_plans(
 		relevant_actions.clear()
 		effects.clear()
 		updated_state.clear()
-		#relevant_keys = null
 		new_plan = null
 
 	return
