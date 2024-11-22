@@ -44,11 +44,15 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 		return GoapPlan.NO_PLAN
 	
 	# Sort plans in order of cost if more than one returned
-	if _plans.size() > 1:
-		_plans.sort_custom(func(a, b): return a.cost < b.cost)
-#
-	# Return best_plan
-	return _plans[0]
+	#if _plans.size() > 1:
+		#_plans.sort_custom(func(a, b): return a.cost < b.cost)
+
+	# Debug print plans
+	for plan: GoapPlan in _plans:
+		_print_plan(plan)
+		
+	# Return best_plan, which is the last one in the array
+	return _plans[-1]
 
 
 #
@@ -70,53 +74,45 @@ func _build_plans(
 	blackboard: Dictionary, 
 	best_cost: int = INT_INF
 ) -> void:
-	# Iterate through available actions
-	for action: GoapAction in _actions:
-		# Check if the action has already been added to the plan
-		if plan.actions.has(action):
-			continue 
-
-		if not action.is_valid():
-			continue
-
+	# Filter actions for actions with desired effects
+	var relevant_actions: Array[GoapAction] = _actions.filter(
+		func(action: GoapAction):
+			# Check if the action has already been added to the plan or is invalid
+			if plan.actions.has(action) or \
+				not action.is_valid() or \
+				plan.cost + action.get_cost(blackboard) >= best_cost:
+					return false
+			var effects: Dictionary = action.get_effects()
+			return effects.keys().any( \
+				func(key): return desired_state.get(key) == effects[key])
+	)
+	
+	# Iterate through all the relevant actions
+	for action: GoapAction in relevant_actions:
 		var effects: Dictionary = action.get_effects()
 		var updated_state: Dictionary = desired_state.duplicate()
-		var action_used: bool = false
 
-		
-		# Check if this action satisfies any condition
-		for key in desired_state:
-			if updated_state[key] == effects.get(key):
-				updated_state.erase(key)
-				action_used = true
+		# Get relevant keys from effects that match desired state
+		var relevant_keys = effects.keys().filter( \
+			func(key): return desired_state.get(key) == effects[key])
 
-		# Skip this action if it doesn't satisfy any condition
-		if not action_used:
-			continue
-
-		# Skip this action as it leads to an expensive plan
-		var action_cost: int = action.get_cost(blackboard)
-		if plan.cost + action_cost >= best_cost:
-			#print("=================================================================")
-			#print("Pruning plan:")
-			#_print_plan(plan)
-			#prints("Expensive Action:", action.get_clazz(), action.get_cost(blackboard))
-			#print("=================================================================")
-			continue
+		# Remove matched keys from the updated state
+		for key in relevant_keys:
+			updated_state.erase(key)
 
 		# Add preconditions to the updated state
-		var preconditions: Dictionary = action.get_preconditions()
-		for precondition in preconditions:
-			updated_state[precondition] = preconditions[precondition]
+		updated_state.merge(action.get_preconditions())
 
 		# Create a new plan with this action added
 		var new_plan: GoapPlan = plan.duplicate()
-		new_plan.add_action(action, action_cost)
+		new_plan.add_action(action, action.get_cost(blackboard))
 
 		# If the updated state is empty, we have a valid plan
 		if updated_state.is_empty():
-			_plans.append(new_plan)
-			best_cost = min(new_plan.cost, best_cost)
+			# Ensure the new plan's cost is less than the best before adding it
+			if new_plan.cost < best_cost:
+				_plans.append(new_plan)
+				best_cost = new_plan.cost
 		else:	
 			# Recursively build plans from the new plan and state
 			_build_plans(new_plan, updated_state, blackboard, best_cost)
