@@ -75,6 +75,7 @@ func _build_plans(
 	plans: Array[GoapPlan],
 	best_cost: int = INT_INF
 ) -> void:
+	
 	# Filter actions for actions with desired effects
 	var relevant_actions: Array[GoapAction] = _actions.filter(
 		func(action: GoapAction):
@@ -92,22 +93,18 @@ func _build_plans(
 	for action: GoapAction in relevant_actions:
 		var effects: Dictionary = action.get_effects()
 		var updated_state: Dictionary = desired_state.duplicate()
-		#prints("duplicated state:", updated_state)
-		# Get relevant keys from effects that match desired state
-		var relevant_keys = effects.keys().filter( \
-			func(key): return desired_state.get(key) == effects[key])
-
-		# Remove matched keys from the updated state
-		for key in relevant_keys:
-			updated_state.erase(key)
+		
+		# Remove effects matched key/value pairs from the updated state
+		_filter_matching_key_value_pairs(updated_state, effects)
 
 		# Add preconditions to the updated state
 		updated_state.merge(action.get_preconditions(), true)
 
+		# Remove blackboard matched key/value pairs from the updated state
+		_filter_matching_key_value_pairs(updated_state, blackboard)
+		
 		# Create a new plan with this action added
 		var new_plan: GoapPlan = plan.duplicate()
-		#prints("duplicated plan:")
-		#_print_plan(new_plan)
 		new_plan.add_action(action, action.get_cost(blackboard))
 
 		# If the updated state is empty, we have a valid plan
@@ -115,7 +112,6 @@ func _build_plans(
 			# Ensure the new plan's cost is less than the best before adding it
 			# Therefore, the last plan in the array will be the best
 			if new_plan.cost < best_cost:
-				#_plans.append(new_plan)
 				plans.append(new_plan)
 				best_cost = new_plan.cost
 		else:	
@@ -126,10 +122,22 @@ func _build_plans(
 		relevant_actions.clear()
 		effects.clear()
 		updated_state.clear()
-		relevant_keys = null
+		#relevant_keys = null
 		new_plan = null
 
 	return
+
+
+# Filter keys in the reference that match values with target and
+# remove key / value pairs from target
+func _filter_matching_key_value_pairs( \
+	target: Dictionary, reference: Dictionary) -> void:
+	var relevant_keys = reference.keys().filter( \
+	func(key): return target.get(key) == reference[key])
+	
+	# Remove matched keys from the target state
+	for key in relevant_keys:
+		target.erase(key)
 
 
 #
