@@ -9,7 +9,7 @@ class_name GoapActionPlanner
 const INT_INF: int = 9223372036854775807
 
 var _actions: Array[GoapAction] = []
-var _plans: Array[GoapPlan] = []
+#var _plans: Array[GoapPlan] = []
 
 #
 # set actions available for planning.
@@ -35,24 +35,24 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 		return GoapPlan.NO_PLAN
 
 	# Clear any previous plans
-	_plans.clear()
+	#_plans.clear()
+	var plans: Array[GoapPlan] = []
 	# Build plans for the desired state
-	_build_plans(GoapPlan.new(), desired_state, blackboard.duplicate())
+	_build_plans(GoapPlan.new(), desired_state, blackboard.duplicate(), plans)
 	
 	# If no valid plans return NO_PLAN early
-	if _plans.is_empty():
+	#if _plans.is_empty():
+	if plans.is_empty():
 		return GoapPlan.NO_PLAN
 	
-	# Sort plans in order of cost if more than one returned
-	#if _plans.size() > 1:
-		#_plans.sort_custom(func(a, b): return a.cost < b.cost)
-
 	# Debug print plans
-	for plan: GoapPlan in _plans:
+	#for plan: GoapPlan in _plans:
+	for plan: GoapPlan in plans:
 		_print_plan(plan)
-		
+	
 	# Return best_plan, which is the last one in the array
-	return _plans[-1]
+	#return _plans[-1]
+	return plans[-1]
 
 
 #
@@ -71,7 +71,8 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 func _build_plans(
 	plan: GoapPlan, 
 	desired_state: Dictionary, 
-	blackboard: Dictionary, 
+	blackboard: Dictionary,
+	plans: Array[GoapPlan],
 	best_cost: int = INT_INF
 ) -> void:
 	# Filter actions for actions with desired effects
@@ -79,7 +80,7 @@ func _build_plans(
 		func(action: GoapAction):
 			# Check if the action has already been added to the plan or is invalid
 			if plan.actions.has(action) or \
-				not action.is_valid() or \
+				#not action.is_valid() or \
 				plan.cost + action.get_cost(blackboard) >= best_cost:
 					return false
 			var effects: Dictionary = action.get_effects()
@@ -91,7 +92,7 @@ func _build_plans(
 	for action: GoapAction in relevant_actions:
 		var effects: Dictionary = action.get_effects()
 		var updated_state: Dictionary = desired_state.duplicate()
-
+		#prints("duplicated state:", updated_state)
 		# Get relevant keys from effects that match desired state
 		var relevant_keys = effects.keys().filter( \
 			func(key): return desired_state.get(key) == effects[key])
@@ -101,21 +102,32 @@ func _build_plans(
 			updated_state.erase(key)
 
 		# Add preconditions to the updated state
-		updated_state.merge(action.get_preconditions())
+		updated_state.merge(action.get_preconditions(), true)
 
 		# Create a new plan with this action added
 		var new_plan: GoapPlan = plan.duplicate()
+		#prints("duplicated plan:")
+		#_print_plan(new_plan)
 		new_plan.add_action(action, action.get_cost(blackboard))
 
 		# If the updated state is empty, we have a valid plan
 		if updated_state.is_empty():
 			# Ensure the new plan's cost is less than the best before adding it
+			# Therefore, the last plan in the array will be the best
 			if new_plan.cost < best_cost:
-				_plans.append(new_plan)
+				#_plans.append(new_plan)
+				plans.append(new_plan)
 				best_cost = new_plan.cost
 		else:	
 			# Recursively build plans from the new plan and state
-			_build_plans(new_plan, updated_state, blackboard, best_cost)
+			_build_plans(new_plan, updated_state, blackboard, plans, best_cost)
+
+		# Release variables
+		relevant_actions.clear()
+		effects.clear()
+		updated_state.clear()
+		relevant_keys = null
+		new_plan = null
 
 	return
 
