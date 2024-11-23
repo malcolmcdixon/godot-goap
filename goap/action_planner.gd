@@ -9,7 +9,7 @@ class_name GoapActionPlanner
 const INT_INF: int = 9223372036854775807
 
 var _actions: Array[GoapAction] = []
-
+var _memoized_plans: Dictionary = {}
 
 #
 # set actions available for planning.
@@ -64,9 +64,14 @@ func _build_plans(
 	desired_state: Dictionary, 
 	blackboard: Dictionary,
 	plans: Array[GoapPlan],
+	cumulative_desired_state: Array[Dictionary] = [],
 	best_cost: int = INT_INF
 ) -> void:
-	
+	cumulative_desired_state.append(desired_state.duplicate())
+	# Check if the plan for this state is already memoized
+	var cache_key: String = JSON.stringify(cumulative_desired_state)
+	if _memoized_plans.has(cache_key):
+		print("Found cached plan")
 	# Filter actions for actions with desired effects
 	var relevant_actions: Array[GoapAction] = _actions.filter(
 		func(action: GoapAction):
@@ -92,7 +97,8 @@ func _build_plans(
 		updated_state.merge(action.get_preconditions(), true)
 
 		# Remove blackboard matched key/value pairs from the updated state
-		_filter_matching_key_value_pairs(updated_state, blackboard)
+		var matching_blackboard_keys: Array = \
+			_filter_matching_key_value_pairs(updated_state, blackboard)
 		
 		# Create a new plan with this action added
 		var new_plan: GoapPlan = plan.duplicate()
@@ -100,6 +106,9 @@ func _build_plans(
 
 		# If the updated state is empty, we have a valid plan
 		if updated_state.is_empty():
+			# Cache the plan irrespective of its cost
+			_memoize_plan(cache_key, new_plan)
+			
 			# Ensure the new plan's cost is less than the best before adding it
 			# Therefore, the last plan in the array will be the best
 			if new_plan.cost < best_cost:
@@ -107,7 +116,7 @@ func _build_plans(
 				best_cost = new_plan.cost
 		else:	
 			# Recursively build plans from the new plan and state
-			_build_plans(new_plan, updated_state, blackboard, plans, best_cost)
+			_build_plans(new_plan, updated_state, blackboard, plans, cumulative_desired_state, best_cost)
 
 		# Release variables
 		relevant_actions.clear()
@@ -118,17 +127,26 @@ func _build_plans(
 	return
 
 
+func _memoize_plan(key: String, plan: GoapPlan) -> void:
+	if not _memoized_plans.has(key):
+		_memoized_plans[key] = []
+	# Store a deep copy of the plan for caching
+	_memoized_plans[key].append(plan.duplicate(true))
+
+
 # Filter keys in the reference that match values with target and
 # remove key / value pairs from target
 func _filter_matching_key_value_pairs( \
-	target: Dictionary, reference: Dictionary) -> void:
-	var relevant_keys = reference.keys().filter( \
+	target: Dictionary, reference: Dictionary) -> Array:
+	var matched_keys = reference.keys().filter( \
 	func(key): return target.get(key) == reference[key])
 	
 	# Remove matched keys from the target state
-	for key in relevant_keys:
+	for key in matched_keys:
 		target.erase(key)
 
+	return matched_keys
+	
 
 #
 # Prints plan. Used for Debugging only.
