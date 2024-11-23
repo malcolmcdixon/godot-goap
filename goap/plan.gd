@@ -24,8 +24,8 @@ func add_action(action: GoapAction, action_cost: int) -> void:
 
 
 # Duplicate method
-func duplicate() -> GoapPlan:
+func duplicate(deep: bool = false) -> GoapPlan:
 	var plan = GoapPlan.new()
-	plan.actions = self.actions.duplicate()
+	plan.actions = self.actions.duplicate(deep)
 	plan.cost = self.cost
 	return plan
