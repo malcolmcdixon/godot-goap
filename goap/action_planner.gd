@@ -64,19 +64,36 @@ func _build_plans(
 	desired_state: Dictionary, 
 	blackboard: Dictionary,
 	plans: Array[GoapPlan],
-	cumulative_desired_state: Array[Dictionary] = [],
 	best_cost: int = INT_INF
 ) -> void:
-	cumulative_desired_state.append(desired_state.duplicate())
 	# Check if the plan for this state is already memoized
-	var cache_key: String = JSON.stringify(cumulative_desired_state)
-	if _memoized_plans.has(cache_key):
-		print("Found cached plan")
+	#var cache_key: String = JSON.stringify(desired_state)
+	#if _memoized_plans.has(cache_key):
+		#print("FOUND CACHED PLANS...")
+		#var cached_plans: Array = _memoized_plans[cache_key]
+		#for cached_plan: GoapPlan in cached_plans:
+			#_print_plan(cached_plan)
+			#var valid_plan: bool = true
+			#for step: GoapStep in cached_plan.steps:
+				#var cached_blackboard: Dictionary = step.blackboard
+				#if cached_blackboard:
+					#valid_plan = \
+						#_has_all_key_value_pairs(blackboard, cached_blackboard)
+				#if not valid_plan:
+					#break
+			#if valid_plan:
+				#var cost: int = cached_plan.recalculate_cost(blackboard)
+				#prints("USING CACHED PLAN", "new cost:", cost)
+				#plans.append(cached_plan)
+		#
+		#return
+
+
 	# Filter actions for actions with desired effects
 	var relevant_actions: Array[GoapAction] = _actions.filter(
 		func(action: GoapAction):
 			# Check if the action has already been added to the plan or is invalid
-			if plan.actions.has(action) or \
+			if plan.has_action(action) or \
 				not action.is_valid() or \
 				plan.cost + action.get_cost(blackboard) >= best_cost:
 					return false
@@ -97,17 +114,23 @@ func _build_plans(
 		updated_state.merge(action.get_preconditions(), true)
 
 		# Remove blackboard matched key/value pairs from the updated state
-		var matching_blackboard_keys: Array = \
+		var matching_blackboard_key_value_pairs: Dictionary = \
 			_filter_matching_key_value_pairs(updated_state, blackboard)
 		
 		# Create a new plan with this action added
 		var new_plan: GoapPlan = plan.duplicate()
-		new_plan.add_action(action, action.get_cost(blackboard))
+		
+		new_plan.add_step( \
+			action, \
+			action.get_cost(blackboard), \
+			desired_state.duplicate(), \
+			matching_blackboard_key_value_pairs \
+		)
 
 		# If the updated state is empty, we have a valid plan
 		if updated_state.is_empty():
 			# Cache the plan irrespective of its cost
-			_memoize_plan(cache_key, new_plan)
+			#_memoize_plan(new_plan)
 			
 			# Ensure the new plan's cost is less than the best before adding it
 			# Therefore, the last plan in the array will be the best
@@ -116,7 +139,7 @@ func _build_plans(
 				best_cost = new_plan.cost
 		else:	
 			# Recursively build plans from the new plan and state
-			_build_plans(new_plan, updated_state, blackboard, plans, cumulative_desired_state, best_cost)
+			_build_plans(new_plan, updated_state, blackboard, plans, best_cost)
 
 		# Release variables
 		relevant_actions.clear()
@@ -127,33 +150,59 @@ func _build_plans(
 	return
 
 
-func _memoize_plan(key: String, plan: GoapPlan) -> void:
-	if not _memoized_plans.has(key):
-		_memoized_plans[key] = []
-	# Store a deep copy of the plan for caching
-	_memoized_plans[key].append(plan.duplicate(true))
+func _memoize_plan(plan: GoapPlan) -> void:
+	# Save full plan
+	_cache_plan(plan)
+	
+	# If more than one step save partial plans
+	var steps_count = plan.steps.size()
+	if steps_count == 1:
+		return
+
+	for index: int in range(steps_count -1, 0, -1):
+		var partial: GoapPlan = GoapPlan.new()
+		partial.add_steps(plan.steps.slice(0, index))
+		_cache_plan(partial)
+
+
+func _cache_plan(plan: GoapPlan) -> void:
+		# Use desired state of the last step (goal desired state) as key
+		var key: String = JSON.stringify(plan.steps[-1].desired_state)
+		if not _memoized_plans.has(key):
+			_memoized_plans[key] = []
+		# Store a deep copy of the plan for caching
+		_memoized_plans[key].append(plan.duplicate(true))
 
 
 # Filter keys in the reference that match values with target and
 # remove key / value pairs from target
 func _filter_matching_key_value_pairs( \
-	target: Dictionary, reference: Dictionary) -> Array:
+	target: Dictionary, reference: Dictionary) -> Dictionary:
 	var matched_keys = reference.keys().filter( \
-	func(key): return target.get(key) == reference[key])
+		func(key): return target.get(key) == reference[key])
 	
-	# Remove matched keys from the target state
+	# Remove matched keys from the target
+	var matched_key_value_pairs: Dictionary = {}
 	for key in matched_keys:
+		matched_key_value_pairs[key] = reference[key]
 		target.erase(key)
 
-	return matched_keys
-	
+	return matched_key_value_pairs
+
+
+func _has_all_key_value_pairs(target: Dictionary, reference: Dictionary) -> bool:
+	# Check if target dictionary has all the key/value pairs
+	# in the reference dictionary
+	return reference.keys().all( \
+		func(key): return target[key] == reference[key])
+
 
 #
 # Prints plan. Used for Debugging only.
 #
 func _print_plan(plan: GoapPlan) -> void:
 	var actions: Array[String] = []
-	for action: GoapAction in plan.actions:
-		actions.push_back(action.get_clazz())
+	for step: GoapStep in plan.steps:
+		actions.push_back(step.action.get_clazz())
 	print({"cost": plan.cost, "actions": actions})
 	SceneManager.console_message({"cost": plan.cost, "actions": actions})
