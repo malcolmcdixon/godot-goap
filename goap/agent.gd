@@ -86,9 +86,10 @@ func _get_best_goal() -> GoapGoal:
 # the job is complete, so the agent can jump to the next action in the list.
 #
 func _follow_plan(plan: GoapPlan, delta: float) -> void:
-	if plan.actions.is_empty():
+	if plan.steps.is_empty():
 		return
 
-	var is_step_complete = plan.actions[_current_plan_step].perform(_actor, delta)
-	if is_step_complete and _current_plan_step < plan.actions.size() - 1:
+	var is_step_complete = \
+		plan.steps[_current_plan_step].action.perform(_actor, delta)
+	if is_step_complete and _current_plan_step < plan.steps.size() - 1:
 		_current_plan_step += 1
