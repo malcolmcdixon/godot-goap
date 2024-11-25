@@ -25,9 +25,9 @@ func set_actions(actions: Array[GoapAction]) -> void:
 #
 func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 	# Debugging output: show the goal
-	print("Goal: %s" % goal.get_clazz())
+	#print("Goal: %s" % goal.get_clazz())
 
-	SceneManager.console_message("Goal: %s" % goal.get_clazz())
+	#SceneManager.console_message("Goal: %s" % goal.get_clazz())
 
 	var desired_state: Dictionary = goal.get_desired_state().duplicate()
 
@@ -36,7 +36,10 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 
 	var plans: Array[GoapPlan] = []
 	# Build plans for the desired state
-	_build_plans(GoapPlan.new(), desired_state, blackboard.duplicate(), plans)
+	#var start_time: float = Time.get_ticks_usec()
+	#_build_plans(GoapPlan.new(), desired_state, blackboard.duplicate(), plans)
+	#prints("Time Elapsed for building plans only - goal:", goal.get_clazz(), Time.get_ticks_usec() - start_time)
+	_build_plans_iterative(goal, GoapPlan.new(), desired_state, blackboard.duplicate(), plans)
 	
 	# If no valid plans return NO_PLAN early
 	if plans.is_empty():
@@ -104,11 +107,22 @@ func _build_plans(
 	
 	# Iterate through all the relevant actions
 	for action: GoapAction in relevant_actions:
+	#for action: GoapAction in _actions:
+		#if not action.is_valid():
+			#continue
+			#
+		#if plan.has_action(action):
+			#continue
+			
 		var effects: Dictionary = action.get_effects()
 		var updated_state: Dictionary = desired_state.duplicate()
 		
 		# Remove effects matched key/value pairs from the updated state
-		_filter_matching_key_value_pairs(updated_state, effects)
+		var matching_effects_key_value_pairs: Dictionary = \
+			_filter_matching_key_value_pairs(updated_state, effects)
+		
+		if not matching_effects_key_value_pairs:
+			continue
 
 		# Add preconditions to the updated state
 		updated_state.merge(action.get_preconditions(), true)
@@ -147,6 +161,87 @@ func _build_plans(
 		updated_state.clear()
 		new_plan = null
 
+	return
+
+
+func _build_plans_iterative(
+	goal: GoapGoal,
+	plan: GoapPlan,
+	desired_state: Dictionary,
+	blackboard: Dictionary,
+	plans: Array[GoapPlan]
+) -> void:
+	var start_time: float = Time.get_ticks_usec()
+	# Stack to simulate recursive calls
+	var stack: Array = []
+	stack.append({
+		"plan": plan,
+		"desired_state": desired_state.duplicate(),
+		"best_cost": INT_INF
+	})
+	
+	while stack.size() > 0:
+		var current = stack.pop_back()
+		var current_plan: GoapPlan = current["plan"]
+		var current_desired_state: Dictionary = current["desired_state"]
+		var current_best_cost: int = current["best_cost"]
+
+		# Filter actions with relevant effects
+		var relevant_actions: Array[GoapAction] = _actions.filter(
+			func(action: GoapAction):
+				if current_plan.has_action(action) or \
+					not action.is_valid() or \
+					current_plan.cost + action.get_cost(blackboard) >= current_best_cost:
+						return false
+				var effects: Dictionary = action.get_effects()
+				return effects.keys().any( \
+					func(key): return current_desired_state.get(key) == effects[key])
+		)
+
+		# Iterate over actions to simulate recursive calls
+		for action in relevant_actions:
+			var effects: Dictionary = action.get_effects()
+			var updated_state: Dictionary = current_desired_state.duplicate()
+
+			# Remove matched effects from updated state
+			var matching_effects_key_value_pairs: Dictionary = \
+				_filter_matching_key_value_pairs(updated_state, effects)
+			
+			if not matching_effects_key_value_pairs:
+				continue
+
+			# Add preconditions to the updated state
+			updated_state.merge(action.get_preconditions(), true)
+
+			# Remove blackboard matched key/value pairs from the updated state
+			var matching_blackboard_key_value_pairs: Dictionary = \
+				_filter_matching_key_value_pairs(updated_state, blackboard)
+
+			# Create a new plan with this action added
+			var new_plan: GoapPlan = current_plan.duplicate()
+			new_plan.add_step( \
+				action, \
+				action.get_cost(blackboard), \
+				current_desired_state.duplicate(), \
+				matching_blackboard_key_value_pairs \
+			)
+
+			# If the updated state is empty, we have a valid plan
+			if updated_state.is_empty():
+				if new_plan.cost < current_best_cost:
+					plans.append(new_plan)
+					current_best_cost = new_plan.cost
+			else:
+				# Push the new state into the stack
+				stack.append({
+					"plan": new_plan,
+					"desired_state": updated_state,
+					"best_cost": current_best_cost
+				})
+
+	# Release variables
+	stack.clear()
+	prints("Time Elapsed for building plans only - goal:", goal.get_clazz(), Time.get_ticks_usec() - start_time)
 	return
 
 
