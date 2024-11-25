@@ -42,8 +42,10 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	labels.get_child(0).visible = Goap.state.get_or_default("hunger", 0) >= 50
-	labels.get_child(1).visible = Goap.state.get_or_default("is_frightened", false)
+	#labels.get_child(0).visible = Goap.state.get_or_default("hunger", 0) >= 50
+	labels.get_child(0).visible = Goap.world_state.get_or_default(Goap.States.HUNGER, 0) >= 50
+	#labels.get_child(1).visible = Goap.state.get_or_default("is_frightened", false)
+	labels.get_child(1).visible = Goap.world_state.get_or_default(Goap.States.IS_FRIGHTENED, false)
 
 	if is_attacking:
 		body.play("attack")
@@ -89,7 +91,9 @@ func chop_tree(tree: TreeToChop) -> bool:
 
 
 func calm_down() -> bool:
-	if Goap.state.is_frightened == false:
+	#if Goap.state.is_frightened == false:
+		#return true
+	if Goap.world_state.is_frightened == false:
 		return true
 
 	if calm_down_timer.is_stopped():
@@ -101,7 +105,10 @@ func calm_down() -> bool:
 func _on_detection_radius_body_entered(detected: Node2D) -> void:
 	if detected.is_in_group("troll"):
 		Goap.state.is_frightened = true
+		Goap.world_state.is_frightened = true
 
 
 func _on_calm_down_timer_timeout() -> void:
 	Goap.state.is_frightened = false
+	Goap.world_state.is_frightened = false
+	

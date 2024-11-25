@@ -3,6 +3,10 @@ extends GoapAction
 class_name FindFoodAction
 
 
+func _init() -> void:
+	effects.append(GoapState.new(Goap.States.IS_HUNGRY, false))
+
+
 func get_clazz(): return "FindFoodAction"
 
 
@@ -27,7 +31,8 @@ func perform(actor, delta) -> bool:
 		return false
 
 	if closest_food.position.distance_to(actor.position) < 5:
-		Goap.state.hunger -= closest_food.nutrition
+		#Goap.state.hunger -= closest_food.nutrition
+		Goap.world_state.hunger -= closest_food.nutrition
 		closest_food.queue_free()
 		return true
 

@@ -2,6 +2,11 @@ extends GoapAction
 
 class_name ChopTreeAction
 
+
+func _init() -> void:
+	effects.append(GoapState.new(Goap.States.HAS_WOOD, true))
+
+
 func get_clazz(): return "ChopTreeAction"
 
 
@@ -33,6 +38,7 @@ func perform(actor, delta) -> bool:
 		if _closest_tree.position.distance_to(actor.position) < 10:
 				if actor.chop_tree(_closest_tree):
 					Goap.state.has_wood = true
+					Goap.world_state.has_wood = true
 					return true
 				return false
 		else:

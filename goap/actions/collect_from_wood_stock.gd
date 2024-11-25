@@ -2,6 +2,11 @@ extends GoapAction
 
 class_name CollectFromWoodStockAction
 
+
+func _init() -> void:
+	effects.append(GoapState.new(Goap.States.HAS_WOOD, true))
+
+
 func get_clazz(): return "CollectFromWoodStockAction"
 
 
@@ -33,6 +38,7 @@ func perform(actor, delta) -> bool:
 		if closest_stock.position.distance_to(actor.position) < 10:
 			closest_stock.queue_free()
 			Goap.state.has_wood = true
+			Goap.world_state.has_wood = true
 			return true
 		else:
 			actor.move_to(actor.position.direction_to(closest_stock.position), delta)

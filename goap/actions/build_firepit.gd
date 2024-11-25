@@ -5,6 +5,11 @@ class_name BuildFirepitAction
 const Firepit = preload("res://scenes/firepit.tscn")
 
 
+func _init() -> void:
+	preconditions.append(GoapState.new(Goap.States.HAS_WOOD, true))
+	effects.append(GoapState.new(Goap.States.HAS_FIREPIT, true))
+
+
 func get_clazz(): return "BuildFirepitAction"
 
 
@@ -36,6 +41,7 @@ func perform(actor, delta) -> bool:
 			firepit.position = _closest_spot.position
 			firepit.z_index = _closest_spot.z_index
 			Goap.state.has_wood = false
+			Goap.world_state.has_wood = false
 			return true
 
 	actor.move_to(actor.position.direction_to(_closest_spot.position), delta)

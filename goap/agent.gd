@@ -21,8 +21,8 @@ var _blackboard: Dictionary = {}
 
 # Connect to Goap state change signal
 func _ready() -> void:
-	Goap.state.changed.connect(_on_state_changed)
-	
+	#Goap.state.changed.connect(_on_state_changed)
+	Goap.world_state.changed.connect(_on_state_changed)
 
 #
 # On every loop this script checks if the current goal is still

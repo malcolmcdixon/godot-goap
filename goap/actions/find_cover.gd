@@ -3,6 +3,10 @@ extends GoapAction
 class_name FindCoverAction
 
 
+func _init() -> void:
+	effects.append(GoapState.new(Goap.States.PROTECTED, true))
+
+
 func get_clazz(): return "FindCoverAction"
 
 

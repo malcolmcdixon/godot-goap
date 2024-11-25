@@ -6,6 +6,9 @@ extends Node
 class_name GoapGoal
 
 
+var desired_state: GoapState # Add desired state in _init()
+
+
 func get_clazz(): return "GoapGoal"
 #
 # This indicates if the goal should be considered or not.

@@ -6,6 +6,10 @@ extends Node
 class_name GoapAction
 
 
+var preconditions: Array[GoapState] # Add preconditions in _init()
+var effects: Array[GoapState] # Add effects in _init()
+
+
 func get_clazz(): return "GoapAction"
 
 

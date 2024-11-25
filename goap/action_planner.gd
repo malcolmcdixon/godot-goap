@@ -27,19 +27,23 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 	# Debugging output: show the goal
 	#print("Goal: %s" % goal.get_clazz())
 
-	#SceneManager.console_message("Goal: %s" % goal.get_clazz())
+	#Debug.console_message("Goal: %s" % goal.get_clazz())
 
-	var desired_state: Dictionary = goal.get_desired_state().duplicate()
+	#var desired_state: Dictionary = goal.get_desired_state().duplicate()
 
-	if desired_state.is_empty():
+	#if goal.get_desired_state().is_empty():
+		#return GoapPlan.NO_PLAN
+	if goal.desired_state == null:
 		return GoapPlan.NO_PLAN
+	#assert(goal.desired_state != null, "The goal %s does not have any desired state" % goal.get_clazz())
 
 	var plans: Array[GoapPlan] = []
 	# Build plans for the desired state
-	#var start_time: float = Time.get_ticks_usec()
-	#_build_plans(GoapPlan.new(), desired_state, blackboard.duplicate(), plans)
-	#prints("Time Elapsed for building plans only - goal:", goal.get_clazz(), Time.get_ticks_usec() - start_time)
-	_build_plans_iterative(goal, GoapPlan.new(), desired_state, blackboard.duplicate(), plans)
+	var start_time: float = Time.get_ticks_usec()
+	#_build_plans(GoapPlan.new(), goal.get_desired_state(), blackboard.duplicate(), plans)
+	_build_plans(GoapPlan.new(), [goal.desired_state], blackboard.duplicate(), plans)
+	prints("Time Elapsed for building plans only - goal:", goal.get_clazz(), Time.get_ticks_usec() - start_time)
+	#_build_plans_iterative(goal, GoapPlan.new(), desired_state, blackboard.duplicate(), plans)
 	
 	# If no valid plans return NO_PLAN early
 	if plans.is_empty():
@@ -62,9 +66,16 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 # Be aware that for simplicity, the current implementation is not protected from
 # circular dependencies. This is easy to implement though.
 #
+#func _build_plans(
+	#plan: GoapPlan, 
+	#desired_state: Dictionary, 
+	#blackboard: Dictionary,
+	#plans: Array[GoapPlan],
+	#best_cost: int = INT_INF
+#) -> void:
 func _build_plans(
 	plan: GoapPlan, 
-	desired_state: Dictionary, 
+	desired_state: Array[GoapState], 
 	blackboard: Dictionary,
 	plans: Array[GoapPlan],
 	best_cost: int = INT_INF
@@ -93,16 +104,31 @@ func _build_plans(
 
 
 	# Filter actions for actions with desired effects
+	#var relevant_actions: Array[GoapAction] = _actions.filter(
+		#func(action: GoapAction):
+			## Check if the action has already been added to the plan or is invalid
+			#if plan.has_action(action) or \
+				#not action.is_valid() or \
+				#plan.cost + action.get_cost(blackboard) >= best_cost:
+					#return false
+			#var effects: Dictionary = action.get_effects()
+			#return effects.keys().any( \
+				#func(key): return desired_state.get(key) == effects[key])
+	#)
 	var relevant_actions: Array[GoapAction] = _actions.filter(
-		func(action: GoapAction):
+		func(action: GoapAction) -> bool:
 			# Check if the action has already been added to the plan or is invalid
-			if plan.has_action(action) or \
-				not action.is_valid() or \
-				plan.cost + action.get_cost(blackboard) >= best_cost:
-					return false
-			var effects: Dictionary = action.get_effects()
-			return effects.keys().any( \
-				func(key): return desired_state.get(key) == effects[key])
+			if plan.has_action(action) or not action.is_valid():
+				return false
+			# Check if the action's cost is too high
+			if plan.cost + action.get_cost(blackboard) >= best_cost:
+				return false
+			# Check if any of the action's effects match the desired state
+			for effect in action.effects:
+				for state in desired_state:
+					if state.equals(effect):
+						return true
+			return false
 	)
 	
 	# Iterate through all the relevant actions
@@ -114,31 +140,44 @@ func _build_plans(
 		#if plan.has_action(action):
 			#continue
 			
-		var effects: Dictionary = action.get_effects()
-		var updated_state: Dictionary = desired_state.duplicate()
+		#var effects: Dictionary = action.get_effects()
+		#var updated_state: Dictionary = desired_state.duplicate()
+		var updated_state: Array[GoapState] = desired_state.duplicate()
 		
 		# Remove effects matched key/value pairs from the updated state
-		var matching_effects_key_value_pairs: Dictionary = \
-			_filter_matching_key_value_pairs(updated_state, effects)
+		#var matching_effects_key_value_pairs: Dictionary = \
+			#_filter_matching_key_value_pairs(updated_state, effects)
+		var matched_effects: Array[GoapState] = \
+			_filter_matching_states(updated_state, action.effects)
 		
-		if not matching_effects_key_value_pairs:
+		#if not matching_effects_key_value_pairs:
+		if matched_effects.is_empty():
 			continue
 
 		# Add preconditions to the updated state
-		updated_state.merge(action.get_preconditions(), true)
+		#updated_state.merge(action.get_preconditions(), true)
+		updated_state.append_array(action.preconditions)
 
 		# Remove blackboard matched key/value pairs from the updated state
-		var matching_blackboard_key_value_pairs: Dictionary = \
-			_filter_matching_key_value_pairs(updated_state, blackboard)
+		#var matching_blackboard_key_value_pairs: Dictionary = \
+			#_filter_matching_key_value_pairs(updated_state, blackboard)
+			
+		#TODO blackboard state to transition to GoapState
 		
 		# Create a new plan with this action added
 		var new_plan: GoapPlan = plan.duplicate()
 		
+		#new_plan.add_step( \
+			#action, \
+			#action.get_cost(blackboard), \
+			#desired_state.duplicate(), \
+			#matching_blackboard_key_value_pairs \
+		#)
 		new_plan.add_step( \
 			action, \
 			action.get_cost(blackboard), \
-			desired_state.duplicate(), \
-			matching_blackboard_key_value_pairs \
+			{}, \
+			{} \
 		)
 
 		# If the updated state is empty, we have a valid plan
@@ -153,96 +192,97 @@ func _build_plans(
 				best_cost = new_plan.cost
 		else:	
 			# Recursively build plans from the new plan and state
+			#_build_plans(new_plan, updated_state, blackboard, plans, best_cost)
 			_build_plans(new_plan, updated_state, blackboard, plans, best_cost)
 
 		# Release variables
 		relevant_actions.clear()
-		effects.clear()
+		#effects.clear()
 		updated_state.clear()
 		new_plan = null
 
 	return
 
 
-func _build_plans_iterative(
-	goal: GoapGoal,
-	plan: GoapPlan,
-	desired_state: Dictionary,
-	blackboard: Dictionary,
-	plans: Array[GoapPlan]
-) -> void:
-	var start_time: float = Time.get_ticks_usec()
-	# Stack to simulate recursive calls
-	var stack: Array = []
-	stack.append({
-		"plan": plan,
-		"desired_state": desired_state.duplicate(),
-		"best_cost": INT_INF
-	})
-	
-	while stack.size() > 0:
-		var current = stack.pop_back()
-		var current_plan: GoapPlan = current["plan"]
-		var current_desired_state: Dictionary = current["desired_state"]
-		var current_best_cost: int = current["best_cost"]
-
-		# Filter actions with relevant effects
-		var relevant_actions: Array[GoapAction] = _actions.filter(
-			func(action: GoapAction):
-				if current_plan.has_action(action) or \
-					not action.is_valid() or \
-					current_plan.cost + action.get_cost(blackboard) >= current_best_cost:
-						return false
-				var effects: Dictionary = action.get_effects()
-				return effects.keys().any( \
-					func(key): return current_desired_state.get(key) == effects[key])
-		)
-
-		# Iterate over actions to simulate recursive calls
-		for action in relevant_actions:
-			var effects: Dictionary = action.get_effects()
-			var updated_state: Dictionary = current_desired_state.duplicate()
-
-			# Remove matched effects from updated state
-			var matching_effects_key_value_pairs: Dictionary = \
-				_filter_matching_key_value_pairs(updated_state, effects)
-			
-			if not matching_effects_key_value_pairs:
-				continue
-
-			# Add preconditions to the updated state
-			updated_state.merge(action.get_preconditions(), true)
-
-			# Remove blackboard matched key/value pairs from the updated state
-			var matching_blackboard_key_value_pairs: Dictionary = \
-				_filter_matching_key_value_pairs(updated_state, blackboard)
-
-			# Create a new plan with this action added
-			var new_plan: GoapPlan = current_plan.duplicate()
-			new_plan.add_step( \
-				action, \
-				action.get_cost(blackboard), \
-				current_desired_state.duplicate(), \
-				matching_blackboard_key_value_pairs \
-			)
-
-			# If the updated state is empty, we have a valid plan
-			if updated_state.is_empty():
-				if new_plan.cost < current_best_cost:
-					plans.append(new_plan)
-					current_best_cost = new_plan.cost
-			else:
-				# Push the new state into the stack
-				stack.append({
-					"plan": new_plan,
-					"desired_state": updated_state,
-					"best_cost": current_best_cost
-				})
-
-	# Release variables
-	stack.clear()
-	prints("Time Elapsed for building plans only - goal:", goal.get_clazz(), Time.get_ticks_usec() - start_time)
-	return
+#func _build_plans_iterative(
+	#goal: GoapGoal,
+	#plan: GoapPlan,
+	#desired_state: Dictionary,
+	#blackboard: Dictionary,
+	#plans: Array[GoapPlan]
+#) -> void:
+	#var start_time: float = Time.get_ticks_usec()
+	## Stack to simulate recursive calls
+	#var stack: Array = []
+	#stack.append({
+		#"plan": plan,
+		#"desired_state": desired_state.duplicate(),
+		#"best_cost": INT_INF
+	#})
+	#
+	#while stack.size() > 0:
+		#var current = stack.pop_back()
+		#var current_plan: GoapPlan = current["plan"]
+		#var current_desired_state: Dictionary = current["desired_state"]
+		#var current_best_cost: int = current["best_cost"]
+#
+		## Filter actions with relevant effects
+		#var relevant_actions: Array[GoapAction] = _actions.filter(
+			#func(action: GoapAction):
+				#if current_plan.has_action(action) or \
+					#not action.is_valid() or \
+					#current_plan.cost + action.get_cost(blackboard) >= current_best_cost:
+						#return false
+				#var effects: Dictionary = action.get_effects()
+				#return effects.keys().any( \
+					#func(key): return current_desired_state.get(key) == effects[key])
+		#)
+#
+		## Iterate over actions to simulate recursive calls
+		#for action in relevant_actions:
+			#var effects: Dictionary = action.get_effects()
+			#var updated_state: Dictionary = current_desired_state.duplicate()
+#
+			## Remove matched effects from updated state
+			#var matching_effects_key_value_pairs: Dictionary = \
+				#_filter_matching_key_value_pairs(updated_state, effects)
+			#
+			#if not matching_effects_key_value_pairs:
+				#continue
+#
+			## Add preconditions to the updated state
+			#updated_state.merge(action.get_preconditions(), true)
+#
+			## Remove blackboard matched key/value pairs from the updated state
+			#var matching_blackboard_key_value_pairs: Dictionary = \
+				#_filter_matching_key_value_pairs(updated_state, blackboard)
+#
+			## Create a new plan with this action added
+			#var new_plan: GoapPlan = current_plan.duplicate()
+			#new_plan.add_step( \
+				#action, \
+				#action.get_cost(blackboard), \
+				#current_desired_state.duplicate(), \
+				#matching_blackboard_key_value_pairs \
+			#)
+#
+			## If the updated state is empty, we have a valid plan
+			#if updated_state.is_empty():
+				#if new_plan.cost < current_best_cost:
+					#plans.append(new_plan)
+					#current_best_cost = new_plan.cost
+			#else:
+				## Push the new state into the stack
+				#stack.append({
+					#"plan": new_plan,
+					#"desired_state": updated_state,
+					#"best_cost": current_best_cost
+				#})
+#
+	## Release variables
+	#stack.clear()
+	#prints("Time Elapsed for building plans only - goal:", goal.get_clazz(), Time.get_ticks_usec() - start_time)
+	#return
 
 
 func _memoize_plan(plan: GoapPlan) -> void:
@@ -271,18 +311,33 @@ func _cache_plan(plan: GoapPlan) -> void:
 
 # Filter keys in the reference that match values with target and
 # remove key / value pairs from target
-func _filter_matching_key_value_pairs( \
-	target: Dictionary, reference: Dictionary) -> Dictionary:
-	var matched_keys = reference.keys().filter( \
-		func(key): return target.get(key) == reference[key])
+#func _filter_matching_key_value_pairs( \
+	#target: Dictionary, reference: Dictionary) -> Dictionary:
+	#var matched_keys = reference.keys().filter( \
+		#func(key): return target.get(key) == reference[key])
+	#
+	## Remove matched keys from the target
+	#var matched_key_value_pairs: Dictionary = {}
+	#for key in matched_keys:
+		#matched_key_value_pairs[key] = reference[key]
+		#target.erase(key)
+#
+	#return matched_key_value_pairs
+func _filter_matching_states( \
+	target: Array[GoapState], reference: Array[GoapState]) -> Array[GoapState]:
+	# Remove matched states from the target
+	var matched: Array[GoapState] = []
+	matched = target.filter(
+		func(state: GoapState):
+			for ref_state in reference:
+				if state.equals(ref_state):
+					return true
+			return false
+	)
+	for state in matched:
+		target.erase(state)
 	
-	# Remove matched keys from the target
-	var matched_key_value_pairs: Dictionary = {}
-	for key in matched_keys:
-		matched_key_value_pairs[key] = reference[key]
-		target.erase(key)
-
-	return matched_key_value_pairs
+	return matched
 
 
 func _has_all_key_value_pairs(target: Dictionary, reference: Dictionary) -> bool:
