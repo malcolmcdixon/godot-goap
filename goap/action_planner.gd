@@ -66,13 +66,6 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 # Be aware that for simplicity, the current implementation is not protected from
 # circular dependencies. This is easy to implement though.
 #
-#func _build_plans(
-	#plan: GoapPlan, 
-	#desired_state: Dictionary, 
-	#blackboard: Dictionary,
-	#plans: Array[GoapPlan],
-	#best_cost: int = INT_INF
-#) -> void:
 func _build_plans(
 	plan: GoapPlan, 
 	desired_state: Array[GoapState], 
@@ -103,18 +96,9 @@ func _build_plans(
 		#return
 
 
-	# Filter actions for actions with desired effects
-	#var relevant_actions: Array[GoapAction] = _actions.filter(
-		#func(action: GoapAction):
-			## Check if the action has already been added to the plan or is invalid
-			#if plan.has_action(action) or \
-				#not action.is_valid() or \
-				#plan.cost + action.get_cost(blackboard) >= best_cost:
-					#return false
-			#var effects: Dictionary = action.get_effects()
-			#return effects.keys().any( \
-				#func(key): return desired_state.get(key) == effects[key])
-	#)
+	# Filter actions that are valid and not already in the plan and
+	# the cost does not make the plan too expensive and
+	# with matching desired effects
 	var relevant_actions: Array[GoapAction] = _actions.filter(
 		func(action: GoapAction) -> bool:
 			# Check if the action has already been added to the plan or is invalid
@@ -133,20 +117,9 @@ func _build_plans(
 	
 	# Iterate through all the relevant actions
 	for action: GoapAction in relevant_actions:
-	#for action: GoapAction in _actions:
-		#if not action.is_valid():
-			#continue
-			#
-		#if plan.has_action(action):
-			#continue
-			
-		#var effects: Dictionary = action.get_effects()
-		#var updated_state: Dictionary = desired_state.duplicate()
 		var updated_state: Array[GoapState] = desired_state.duplicate()
 		
-		# Remove effects matched key/value pairs from the updated state
-		#var matching_effects_key_value_pairs: Dictionary = \
-			#_filter_matching_key_value_pairs(updated_state, effects)
+		# Remove effects matched states from the updated state
 		var matched_effects: Array[GoapState] = \
 			_filter_matching_states(updated_state, action.effects)
 		
@@ -155,24 +128,19 @@ func _build_plans(
 			continue
 
 		# Add preconditions to the updated state
-		#updated_state.merge(action.get_preconditions(), true)
 		updated_state.append_array(action.preconditions)
 
+		#TODO blackboard state to transition to GoapState
 		# Remove blackboard matched key/value pairs from the updated state
 		#var matching_blackboard_key_value_pairs: Dictionary = \
 			#_filter_matching_key_value_pairs(updated_state, blackboard)
 			
-		#TODO blackboard state to transition to GoapState
 		
 		# Create a new plan with this action added
 		var new_plan: GoapPlan = plan.duplicate()
 		
-		#new_plan.add_step( \
-			#action, \
-			#action.get_cost(blackboard), \
-			#desired_state.duplicate(), \
-			#matching_blackboard_key_value_pairs \
-		#)
+		# TODO desired state
+		# TODO matched blackboard states
 		new_plan.add_step( \
 			action, \
 			action.get_cost(blackboard), \
@@ -192,12 +160,11 @@ func _build_plans(
 				best_cost = new_plan.cost
 		else:	
 			# Recursively build plans from the new plan and state
-			#_build_plans(new_plan, updated_state, blackboard, plans, best_cost)
 			_build_plans(new_plan, updated_state, blackboard, plans, best_cost)
 
 		# Release variables
 		relevant_actions.clear()
-		#effects.clear()
+		matched_effects.clear()
 		updated_state.clear()
 		new_plan = null
 
@@ -285,44 +252,32 @@ func _build_plans(
 	#return
 
 
-func _memoize_plan(plan: GoapPlan) -> void:
-	# Save full plan
-	_cache_plan(plan)
-	
-	# If more than one step save partial plans
-	var steps_count = plan.steps.size()
-	if steps_count == 1:
-		return
-
-	for index: int in range(steps_count -1, 0, -1):
-		var partial: GoapPlan = GoapPlan.new()
-		partial.add_steps(plan.steps.slice(0, index))
-		_cache_plan(partial)
-
-
-func _cache_plan(plan: GoapPlan) -> void:
-		# Use desired state of the last step (goal desired state) as key
-		var key: String = JSON.stringify(plan.steps[-1].desired_state)
-		if not _memoized_plans.has(key):
-			_memoized_plans[key] = []
-		# Store a deep copy of the plan for caching
-		_memoized_plans[key].append(plan.duplicate(true))
-
-
-# Filter keys in the reference that match values with target and
-# remove key / value pairs from target
-#func _filter_matching_key_value_pairs( \
-	#target: Dictionary, reference: Dictionary) -> Dictionary:
-	#var matched_keys = reference.keys().filter( \
-		#func(key): return target.get(key) == reference[key])
+#func _memoize_plan(plan: GoapPlan) -> void:
+	## Save full plan
+	#_cache_plan(plan)
 	#
-	## Remove matched keys from the target
-	#var matched_key_value_pairs: Dictionary = {}
-	#for key in matched_keys:
-		#matched_key_value_pairs[key] = reference[key]
-		#target.erase(key)
+	## If more than one step save partial plans
+	#var steps_count = plan.steps.size()
+	#if steps_count == 1:
+		#return
 #
-	#return matched_key_value_pairs
+	#for index: int in range(steps_count -1, 0, -1):
+		#var partial: GoapPlan = GoapPlan.new()
+		#partial.add_steps(plan.steps.slice(0, index))
+		#_cache_plan(partial)
+
+
+#func _cache_plan(plan: GoapPlan) -> void:
+		## Use desired state of the last step (goal desired state) as key
+		#var key: String = JSON.stringify(plan.steps[-1].desired_state)
+		#if not _memoized_plans.has(key):
+			#_memoized_plans[key] = []
+		## Store a deep copy of the plan for caching
+		#_memoized_plans[key].append(plan.duplicate(true))
+
+
+# Filter states in the reference that match within target and
+# remove states from target
 func _filter_matching_states( \
 	target: Array[GoapState], reference: Array[GoapState]) -> Array[GoapState]:
 	# Remove matched states from the target
@@ -340,19 +295,19 @@ func _filter_matching_states( \
 	return matched
 
 
-func _has_all_key_value_pairs(target: Dictionary, reference: Dictionary) -> bool:
-	# Check if target dictionary has all the key/value pairs
-	# in the reference dictionary
-	return reference.keys().all( \
-		func(key): return target[key] == reference[key])
+#func _has_all_key_value_pairs(target: Dictionary, reference: Dictionary) -> bool:
+	## Check if target dictionary has all the key/value pairs
+	## in the reference dictionary
+	#return reference.keys().all( \
+		#func(key): return target[key] == reference[key])
 
 
 #
-# Prints plan. Used for Debugging only.
+# Prints plan. Used for Debugging.
 #
 func _print_plan(plan: GoapPlan) -> void:
 	var actions: Array[String] = []
 	for step: GoapStep in plan.steps:
 		actions.push_back(step.action.get_clazz())
 	print({"cost": plan.cost, "actions": actions})
-	SceneManager.console_message({"cost": plan.cost, "actions": actions})
+	Debug.console_message({"cost": plan.cost, "actions": actions})

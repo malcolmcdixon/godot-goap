@@ -16,9 +16,3 @@ func is_valid() -> bool:
 
 func priority() -> int:
 	return 1
-
-
-func get_desired_state() -> Dictionary:
-	return {
-		"has_firepit": true
-	}

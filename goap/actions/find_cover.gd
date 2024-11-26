@@ -14,16 +14,6 @@ func get_cost(_blackboard) -> int:
 	return 1
 
 
-func get_preconditions() -> Dictionary:
-	return {}
-
-
-func get_effects() -> Dictionary:
-	return {
-		"protected": true
-	}
-
-
 func perform(actor, delta) -> bool:
 	var closest_cover = SceneManager.get_closest_element("cover", actor)
 

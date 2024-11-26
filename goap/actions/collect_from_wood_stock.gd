@@ -21,23 +21,12 @@ func get_cost(blackboard) -> int:
 	return 5
 
 
-func get_preconditions() -> Dictionary:
-	return {}
-
-
-func get_effects() -> Dictionary:
-	return {
-		"has_wood": true,
-	}
-
-
 func perform(actor, delta) -> bool:
 	var closest_stock = SceneManager.get_closest_element("wood_stock", actor)
 
 	if closest_stock:
 		if closest_stock.position.distance_to(actor.position) < 10:
 			closest_stock.queue_free()
-			Goap.state.has_wood = true
 			Goap.world_state.has_wood = true
 			return true
 		else:

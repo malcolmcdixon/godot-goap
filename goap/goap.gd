@@ -26,7 +26,6 @@ enum States {
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 
 # world state #
-var state: ObservableDictionary = ObservableDictionary.new()
 var world_state: StateManager = StateManager.new()
 
 

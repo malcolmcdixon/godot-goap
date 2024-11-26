@@ -17,9 +17,9 @@ var value: Variant:
 		return _value
 
 
-func _init(key: Goap.States, value: Variant) -> void:
-	_key = key
-	_value = value
+func _init(init_key: Goap.States, init_value: Variant) -> void:
+	_key = init_key
+	_value = init_value
 
 
 func equals(other: GoapState) -> bool:

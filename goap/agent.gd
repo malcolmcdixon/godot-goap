@@ -21,7 +21,6 @@ var _blackboard: Dictionary = {}
 
 # Connect to Goap state change signal
 func _ready() -> void:
-	#Goap.state.changed.connect(_on_state_changed)
 	Goap.world_state.changed.connect(_on_state_changed)
 
 #
@@ -65,6 +64,7 @@ func _on_state_changed(state_name: StringName, state_value: Variant) -> void:
 # Returns the highest priority goal available.
 #
 func _get_best_goal() -> GoapGoal:
+	#var start_time: float = Time.get_ticks_usec()
 	var best_goal: GoapGoal = null
 	var highest_priority: int = -1
 	var valid_goals = _goals.filter(func(goal): return goal.is_valid())
@@ -74,6 +74,8 @@ func _get_best_goal() -> GoapGoal:
 		if priority > highest_priority:
 			highest_priority = priority
 			best_goal = goal
+
+	#prints("Time Elapsed for getting best goal:", Time.get_ticks_usec() - start_time)
 
 	return best_goal
 

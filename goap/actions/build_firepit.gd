@@ -17,18 +17,6 @@ func get_cost(_blackboard) -> int:
 	return 1
 
 
-func get_preconditions() -> Dictionary:
-	return {
-		"has_wood": true
-	}
-
-
-func get_effects() -> Dictionary:
-	return {
-		"has_firepit": true
-	}
-
-
 func perform(actor, delta) -> bool:
 	var _closest_spot = SceneManager.get_closest_element("firepit_spot", actor)
 
@@ -40,7 +28,6 @@ func perform(actor, delta) -> bool:
 			actor.get_parent().add_child(firepit)
 			firepit.position = _closest_spot.position
 			firepit.z_index = _closest_spot.z_index
-			Goap.state.has_wood = false
 			Goap.world_state.has_wood = false
 			return true
 
