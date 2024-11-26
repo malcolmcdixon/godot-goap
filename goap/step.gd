@@ -4,15 +4,15 @@ class_name  GoapStep
 
 var action: GoapAction
 var cost: int  = 0
-var desired_state: Dictionary
-var blackboard: Dictionary
+var desired_state: Array[GoapState]
+var blackboard: Array[GoapState]
 
 
 func _init( \
 	step_action: GoapAction, \
 	step_cost: int,
-	step_desired_state: Dictionary, \
-	step_blackboard: Dictionary
+	step_desired_state: Array[GoapState], \
+	step_blackboard: Array[GoapState]
 ) -> void:
 	self.action = step_action
 	self.cost = step_cost

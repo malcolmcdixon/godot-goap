@@ -13,7 +13,7 @@
 #
 extends Node
 
-
+# States allowed in this GOAP system, mainly used by StateManager and GoapState
 enum States {
 	HAS_FIREPIT,
 	IS_HUNGRY,

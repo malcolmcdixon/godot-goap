@@ -144,8 +144,8 @@ func _build_plans(
 		new_plan.add_step( \
 			action, \
 			action.get_cost(blackboard), \
-			{}, \
-			{} \
+			[], \
+			[] \
 		)
 
 		# If the updated state is empty, we have a valid plan
