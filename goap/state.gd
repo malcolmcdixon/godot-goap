@@ -22,5 +22,9 @@ func _init(init_key: Goap.States, init_value: Variant) -> void:
 	_value = init_value
 
 
+func _to_string() -> String:
+	return "%s = %s" % [Goap.States.keys()[key], value]
+
+
 func equals(other: GoapState) -> bool:
 	return other != null and _key == other.key and _value == other.value

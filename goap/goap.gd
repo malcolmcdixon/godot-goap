@@ -21,6 +21,7 @@ enum States {
 	IS_FRIGHTENED,
 	HAS_WOOD,
 	PROTECTED,
+	POSITION
 }
 
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()

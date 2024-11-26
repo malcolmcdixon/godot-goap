@@ -21,10 +21,8 @@ static func _static_init() -> void:
 
 
 func _init(states: Array[GoapState] = []) -> void:
-	for state in _states:
-		pass
-	for key in _state_key_mappings:
-		prints(key, _state_key_mappings[key])
+	for state: GoapState in states:
+		_states[state.key] = state
 
 
 func _set(key: StringName, value: Variant) -> bool:
@@ -32,7 +30,9 @@ func _set(key: StringName, value: Variant) -> bool:
 	if not mapped_key:
 		return false
 	var exists: bool = _states.has(mapped_key)
-	_states[mapped_key] = GoapState.new(mapped_key, value)
+	var state = GoapState.new(mapped_key, value)
+	_states[mapped_key] = state
+	
 	if exists:
 		updated.emit(mapped_key, value)
 	else:
@@ -53,7 +53,7 @@ func _to_string() -> String:
 	var result: String = "{"
 	for key: int in _states.keys():
 		var value = _states[key]
-		result += "\n %s: %s" % [key, value]
+		result += "\n %s: %s" % [Goap.States.keys()[key], value]
 	result += "\n}"
 	return result
 
@@ -70,6 +70,15 @@ func get_or_default(key: Goap.States, default: Variant = null) -> Variant:
 		return state.value
 	else:
 		return default
+
+
+func get_states() -> Array[GoapState]:
+	var states: Array[GoapState] = []
+	states.append_array(_states.values())
+	if states:
+		return states
+	else:
+		return []
 
 
 func clear() -> void:

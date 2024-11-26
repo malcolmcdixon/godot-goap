@@ -9,7 +9,7 @@ class_name GoapActionPlanner
 const INT_INF: int = 9223372036854775807
 
 var _actions: Array[GoapAction] = []
-var _memoized_plans: Dictionary = {}
+#var _memoized_plans: Dictionary = {}
 
 #
 # set actions available for planning.
@@ -23,7 +23,8 @@ func set_actions(actions: Array[GoapAction]) -> void:
 # Receives a Goal and an optional blackboard.
 # Returns a list of actions to be executed.
 #
-func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
+#func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
+func get_plan(goal: GoapGoal, blackboard: StateManager) -> GoapPlan:
 	# Debugging output: show the goal
 	#print("Goal: %s" % goal.get_clazz())
 
@@ -40,8 +41,9 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 	var plans: Array[GoapPlan] = []
 	# Build plans for the desired state
 	var start_time: float = Time.get_ticks_usec()
-	#_build_plans(GoapPlan.new(), goal.get_desired_state(), blackboard.duplicate(), plans)
-	_build_plans(GoapPlan.new(), [goal.desired_state], blackboard.duplicate(), plans)
+
+	_build_plans(GoapPlan.new(), [goal.desired_state], blackboard, plans)
+
 	prints("Time Elapsed for building plans only - goal:", goal.get_clazz(), Time.get_ticks_usec() - start_time)
 	#_build_plans_iterative(goal, GoapPlan.new(), desired_state, blackboard.duplicate(), plans)
 	
@@ -69,7 +71,7 @@ func get_plan(goal: GoapGoal, blackboard: Dictionary = {}) -> GoapPlan:
 func _build_plans(
 	plan: GoapPlan, 
 	desired_state: Array[GoapState], 
-	blackboard: Dictionary,
+	blackboard: StateManager,
 	plans: Array[GoapPlan],
 	best_cost: int = INT_INF
 ) -> void:
@@ -130,11 +132,9 @@ func _build_plans(
 		# Add preconditions to the updated state
 		updated_state.append_array(action.preconditions)
 
-		#TODO blackboard state to transition to GoapState
-		# Remove blackboard matched key/value pairs from the updated state
-		#var matching_blackboard_key_value_pairs: Dictionary = \
-			#_filter_matching_key_value_pairs(updated_state, blackboard)
-			
+		# Remove blackboard state from the updated state
+		var matched_blackboard_states: Array[GoapState] = \
+			_filter_matching_states(updated_state, blackboard.get_states())
 		
 		# Create a new plan with this action added
 		var new_plan: GoapPlan = plan.duplicate()
@@ -162,11 +162,8 @@ func _build_plans(
 			# Recursively build plans from the new plan and state
 			_build_plans(new_plan, updated_state, blackboard, plans, best_cost)
 
-		# Release variables
-		relevant_actions.clear()
-		matched_effects.clear()
-		updated_state.clear()
-		new_plan = null
+	# Release variables
+	relevant_actions.clear()
 
 	return
 

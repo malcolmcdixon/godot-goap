@@ -16,7 +16,7 @@ var _current_plan: GoapPlan
 var _current_plan_step: int = 0
 
 var _actor: Node
-var _blackboard: Dictionary = {}
+var _blackboard: StateManager = StateManager.new()
 
 
 # Connect to Goap state change signal
@@ -43,7 +43,12 @@ func _make_plan(goal: GoapGoal) -> void:
 	# when calculating action costs and status. I'm not sure here is the best
 	# place to leave it, but I kept here to keep things simple.
 	_blackboard.position = _actor.position
+	
+	# print blackboard
+	prints("Blackboard:", _blackboard)
+	
 	var start_time: float = Time.get_ticks_usec()
+
 	_current_plan = Goap.get_action_planner().get_plan(_current_goal, _blackboard)
 
 	prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)

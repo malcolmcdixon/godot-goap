@@ -15,10 +15,10 @@ func is_valid() -> bool:
 
 
 func get_cost(blackboard) -> int:
-	if blackboard.has("position"):
+	if blackboard.position:
 		var closest_tree = SceneManager.get_closest_element("tree", blackboard)
-		return int(closest_tree.position.distance_to(blackboard.position) / 7)
-	return 3
+		return int(closest_tree.position.distance_to(blackboard.position) / 5)
+	return 5
 
 
 func perform(actor, delta) -> bool:
