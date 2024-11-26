@@ -15,4 +15,4 @@ func is_valid() -> bool:
 
 
 func priority() -> int:
-	return 1
+	return 2

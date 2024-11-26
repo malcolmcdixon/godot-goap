@@ -21,7 +21,8 @@ enum States {
 	IS_FRIGHTENED,
 	HAS_WOOD,
 	PROTECTED,
-	POSITION
+	POSITION,
+	IS_STOCKPILING
 }
 
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
@@ -38,6 +39,7 @@ func _ready() -> void:
 		CalmDownAction.new(),
 		FindCoverAction.new(),
 		FindFoodAction.new(),
+		AddToWoodStockAction.new()
 	])
 
 

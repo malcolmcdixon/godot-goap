@@ -139,7 +139,7 @@ shape = SubResource("15")
 
 [node name="calm_down_timer" type="Timer" parent="."]
 unique_name_in_owner = true
-wait_time = 5.0
+wait_time = 3.0
 one_shot = true
 
 [node name="labels" type="Node2D" parent="."]

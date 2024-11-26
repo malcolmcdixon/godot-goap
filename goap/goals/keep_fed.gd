@@ -16,4 +16,4 @@ func is_valid() -> bool:
 
 
 func priority() -> int:
-	return 1 if Goap.world_state.get_or_default(Goap.States.HUNGER, 0) < 75 else 2
+	return 2 if Goap.world_state.get_or_default(Goap.States.HUNGER, 0) < 75 else 3

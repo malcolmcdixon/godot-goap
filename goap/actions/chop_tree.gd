@@ -4,6 +4,7 @@ class_name ChopTreeAction
 
 
 func _init() -> void:
+	preconditions.append(GoapState.new(Goap.States.HAS_WOOD, false))
 	effects.append(GoapState.new(Goap.States.HAS_WOOD, true))
 
 

@@ -31,8 +31,14 @@ func _ready() -> void:
 		KeepFirepitBurningGoal.new(),
 		KeepFedGoal.new(),
 		CalmDownGoal.new(),
-		RelaxGoal.new()
-	])
+		RelaxGoal.new(),
+		KeepWoodStockedGoal.new()
+		],
+		[
+			GoapState.new(Goap.States.HAS_WOOD, false),
+			GoapState.new(Goap.States.IS_STOCKPILING, false)
+		]
+	)
 	
 	add_child(agent)
 

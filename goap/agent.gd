@@ -16,7 +16,7 @@ var _current_plan: GoapPlan
 var _current_plan_step: int = 0
 
 var _actor: Node
-var _blackboard: StateManager = StateManager.new()
+var _blackboard: StateManager
 
 
 # Connect to Goap state change signal
@@ -44,6 +44,9 @@ func _make_plan(goal: GoapGoal) -> void:
 	# place to leave it, but I kept here to keep things simple.
 	_blackboard.position = _actor.position
 	
+	# Goal specific states
+	Goap.world_state.is_stockpiling = goal is KeepWoodStockedGoal
+	
 	# print blackboard
 	prints("Blackboard:", _blackboard)
 	
@@ -55,9 +58,10 @@ func _make_plan(goal: GoapGoal) -> void:
 	_current_plan_step = 0
 
 
-func init(actor: Node, goals: Array[GoapGoal]) -> void:
+func init(actor: Node, goals: Array[GoapGoal], blackboard: Array[GoapState]) -> void:
 	_actor = actor
 	_goals = goals
+	_blackboard = StateManager.new(blackboard)
 
 
 # Update the blackboard with the specific state change
@@ -96,6 +100,10 @@ func _follow_plan(plan: GoapPlan, delta: float) -> void:
 	if plan.steps.is_empty():
 		return
 
+	var action = plan.steps[_current_plan_step].action
+	if action is AddToWoodStockAction:
+		pass
+		
 	var is_step_complete = \
 		plan.steps[_current_plan_step].action.perform(_actor, delta)
 	if is_step_complete and _current_plan_step < plan.steps.size() - 1:
