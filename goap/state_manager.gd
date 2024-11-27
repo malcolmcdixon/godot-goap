@@ -27,7 +27,7 @@ func _init(states: Array[GoapState] = []) -> void:
 
 func _set(key: StringName, value: Variant) -> bool:
 	var mapped_key: int = _get_mapped_key(key)
-	if not mapped_key:
+	if mapped_key == NO_KEY_MAPPING:
 		return false
 	var exists: bool = _states.has(mapped_key)
 	var state = GoapState.new(mapped_key, value)
