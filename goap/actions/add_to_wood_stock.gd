@@ -9,7 +9,7 @@ const Woodstock = preload("res://scenes/wood_stock.tscn")
 func _init() -> void:
 	preconditions.append(GoapState.new(Goap.States.HAS_WOOD, true))
 	effects.append(GoapState.new(Goap.States.IS_STOCKPILING, true))
-
+	effects.append(GoapState.new(Goap.States.HAS_WOOD, false))
 
 func get_clazz(): return "AddToWoodStockAction"
 
@@ -31,14 +31,14 @@ func perform(actor, delta) -> bool:
 	if _closest_spot == null:
 		return false
 
-	if _closest_spot.position.distance_to(actor.position) < 20:
+	if _closest_spot.position.distance_to(actor.position) < 10:
 			var wood_stock = Woodstock.instantiate()
 			actor.get_parent().get_node("WoodStocks").add_child(wood_stock)
 			wood_stock.position = _closest_spot.position
 			wood_stock.z_index = _closest_spot.z_index
 			_closest_spot.queue_free()
 			Goap.world_state.has_wood = false
-			Goap.world_state.is_stockpiling = false
+			Goap.world_state.is_stockpiling = true
 			return true
 
 	actor.move_to(actor.position.direction_to(_closest_spot.position), delta)
