@@ -5,6 +5,7 @@ class_name CollectFromWoodStockAction
 
 func _init() -> void:
 	preconditions.append(GoapState.new(Goap.States.HAS_WOOD, false))
+	preconditions.append(GoapState.new(Goap.States.IS_STOCKPILING, false))
 	effects.append(GoapState.new(Goap.States.HAS_WOOD, true))
 
 
@@ -12,15 +13,15 @@ func get_clazz(): return "CollectFromWoodStockAction"
 
 
 func is_valid() -> bool:
-	return SceneManager.get_elements("wood_stock").size() > 0 and \
-		Goap.world_state.get_or_default(Goap.States.IS_STOCKPILING, false) == false
+	return SceneManager.get_elements("wood_stock").size() > 0 # and \
+		#not Goap.world_state.get_or_default(Goap.States.IS_STOCKPILING, false)
 
 
 func get_cost(blackboard) -> int:
 	if blackboard.position:
 		var closest_wood_stock = SceneManager.get_closest_element("wood_stock", blackboard)
-		return int(closest_wood_stock.position.distance_to(blackboard.position) / 7)
-	return 4
+		return int(closest_wood_stock.position.distance_to(blackboard.position) / 8)
+	return 3
 
 
 func perform(actor, delta) -> bool:
