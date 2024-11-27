@@ -6,6 +6,16 @@ extends Node
 class_name GoapGoal
 
 
+#
+# Goal's desired state. This is usually referred to as desired world
+# state, but it doesn't need to match the raw world state.
+#
+# For example, in your world state you may store "hunger" as a number,
+# but inside your goal you can deal with it as "is_hungry".
+#
+var desired_state: GoapState # Add desired state in _init()
+
+
 func get_clazz(): return "GoapGoal"
 #
 # This indicates if the goal should be considered or not.
@@ -22,12 +32,3 @@ func is_valid() -> bool:
 #
 func priority() -> int:
 	return 1
-
-#
-# Plan's desired state. This is usually referred as desired world
-# state, but it doesn't need to match the raw world state.
-#
-# For example, in your world state you may store "hunger" as a number, but inside your
-# goap you can deal with it as "is_hungry".
-func get_desired_state() -> Dictionary:
-	return {}

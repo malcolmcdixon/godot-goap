@@ -2,6 +2,11 @@ extends GoapGoal
 
 class_name KeepFirepitBurningGoal
 
+
+func _init() -> void:
+	self.desired_state = GoapState.new(Goap.States.HAS_FIREPIT, true)
+
+
 func get_clazz(): return "KeepFirepitBurningGoal"
 
 
@@ -10,10 +15,4 @@ func is_valid() -> bool:
 
 
 func priority() -> int:
-	return 1
-
-
-func get_desired_state() -> Dictionary:
-	return {
-		"has_firepit": true
-	}
+	return 2

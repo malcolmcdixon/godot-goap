@@ -20,8 +20,8 @@ func _init(plan_steps: Array[GoapStep] = []) -> void:
 func add_step(
 	action: GoapAction, \
 	action_cost: int,
-	desired_state: Dictionary, \
-	blackboard: Dictionary
+	desired_state: Array[GoapState], \
+	blackboard: Array[GoapState]
 ) -> void:
 	var step: GoapStep = GoapStep.new(action, action_cost, desired_state, blackboard)
 	steps.push_front(step)
