@@ -139,13 +139,11 @@ func _build_plans(
 		# Create a new plan with this action added
 		var new_plan: GoapPlan = plan.duplicate()
 		
-		# TODO desired state
-		# TODO matched blackboard states
-		new_plan.add_step( \
-			action, \
-			action.get_cost(blackboard), \
-			[], \
-			[] \
+		new_plan.add_step(
+			action,
+			action.get_cost(blackboard),
+			updated_state,
+			matched_blackboard_states
 		)
 
 		# If the updated state is empty, we have a valid plan
