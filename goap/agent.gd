@@ -22,6 +22,7 @@ var _blackboard: StateManager
 # Connect to Goap state change signal
 func _ready() -> void:
 	Goap.world_state.changed.connect(_on_state_changed)
+	#pass
 
 #
 # On every loop this script checks if the current goal is still
@@ -42,10 +43,11 @@ func _make_plan(goal: GoapGoal) -> void:
 	# You can set in the blackboard any relevant information you want to use
 	# when calculating action costs and status. I'm not sure here is the best
 	# place to leave it, but I kept here to keep things simple.
+	#_blackboard = StateManager.new(Goap.world_state.get_states())
 	_blackboard.position = _actor.position
 	
 	# Goal specific states
-	Goap.world_state.is_stockpiling = goal is KeepWoodStockedGoal
+	_blackboard.is_stockpiling = goal is KeepWoodStockedGoal
 	
 	# print blackboard
 	prints("Blackboard:", _blackboard)
@@ -97,14 +99,17 @@ func _get_best_goal() -> GoapGoal:
 # the job is complete, so the agent can jump to the next action in the list.
 #
 func _follow_plan(plan: GoapPlan, delta: float) -> void:
-	if plan.steps.is_empty():
+	if plan == GoapPlan.NO_PLAN:
 		return
 
-	var action = plan.steps[_current_plan_step].action
-	if action is AddToWoodStockAction:
-		pass
+	var action: GoapAction = plan.steps[_current_plan_step].action
 		
-	var is_step_complete = \
-		plan.steps[_current_plan_step].action.perform(_actor, delta)
-	if is_step_complete and _current_plan_step < plan.steps.size() - 1:
-		_current_plan_step += 1
+	var is_step_complete: bool = action.perform(_actor, delta)
+
+	if is_step_complete:
+		var last_step: int = plan.steps.size() - 1
+		if _current_plan_step < last_step:
+			_current_plan_step += 1
+		# reset current plan step to zero for repeated goals
+		elif _current_plan_step == last_step:
+			_current_plan_step = 0
