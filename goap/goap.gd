@@ -13,11 +13,22 @@
 #
 extends Node
 
+# States allowed in this GOAP system, mainly used by StateManager and GoapState
+enum States {
+	HAS_FIREPIT,
+	IS_HUNGRY,
+	HUNGER,
+	IS_FRIGHTENED,
+	HAS_WOOD,
+	PROTECTED,
+	POSITION,
+	IS_STOCKPILING
+}
 
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 
 # world state #
-var state: ObservableDictionary = ObservableDictionary.new()
+var world_state: StateManager = StateManager.new()
 
 
 func _ready() -> void:
@@ -28,6 +39,7 @@ func _ready() -> void:
 		CalmDownAction.new(),
 		FindCoverAction.new(),
 		FindFoodAction.new(),
+		AddToWoodStockAction.new()
 	])
 
 

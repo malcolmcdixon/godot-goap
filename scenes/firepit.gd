@@ -7,7 +7,11 @@ extends Node2D
 
 func _ready() -> void:
 	# connect to signals
-	timer.timeout.connect(func(): queue_free())
+	timer.timeout.connect(
+		func(): 
+			queue_free()
+			Goap.world_state.has_firepit = false
+	)
 
 
 func _process(_delta):

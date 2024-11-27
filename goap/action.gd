@@ -5,6 +5,18 @@ extends Node
 
 class_name GoapAction
 
+#
+# Action requirements.
+# Example: preconditions.append(GoapState.new(Goap.States.HAS_WOOD, true))
+#
+var preconditions: Array[GoapState] # Add preconditions in _init()
+
+#
+# What conditions this action satisfies.
+# Example: effects.append(GoapState.new(Goap.States.HAS_FIREPIT, true))
+#
+var effects: Array[GoapState] # Add effects in _init()
+
 
 func get_clazz(): return "GoapAction"
 
@@ -28,28 +40,6 @@ func is_valid() -> bool:
 #
 func get_cost(_blackboard) -> int:
 	return 1000
-
-#
-# Action requirements.
-# Example:
-# {
-#   "has_wood": true
-# }
-#
-func get_preconditions() -> Dictionary:
-	return {}
-
-
-#
-# What conditions this action satisfies
-#
-# Example:
-# {
-#   "has_wood": true
-# }
-func get_effects() -> Dictionary:
-	return {}
-
 
 #
 # Action implementation called on every loop.

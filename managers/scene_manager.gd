@@ -17,9 +17,3 @@ func get_closest_element(group_name: StringName, reference: Variant) -> Node:
 			closest_element = element
 
 	return closest_element
-
-
-func console_message(object) -> void:
-	var console = get_tree().get_nodes_in_group("console")[0] as TextEdit
-	console.text += "\n%s" % str(object)
-	console.set_caret_line(console.get_line_count())

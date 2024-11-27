@@ -4451,6 +4451,8 @@ size_flags_vertical = 0
 text = "Show Console"
 
 [node name="console_container" type="MarginContainer" parent="HUD"]
+unique_name_in_owner = true
+visible = false
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 60.0
@@ -4459,7 +4461,6 @@ size_flags_vertical = 0
 
 [node name="TextEdit" type="TextEdit" parent="HUD/console_container" groups=["console"]]
 process_mode = 3
-visible = false
 modulate = Color(1, 1, 1, 0.752941)
 custom_minimum_size = Vector2(150, 50)
 layout_mode = 2
@@ -4476,5 +4477,4 @@ autostart = true
 
 [connection signal="pressed" from="HUD/VBoxContainer/MarginContainer/HBoxContainer/reload" to="." method="_on_reload_pressed"]
 [connection signal="pressed" from="HUD/VBoxContainer/MarginContainer/HBoxContainer/pause" to="." method="_on_pause_pressed"]
-[connection signal="pressed" from="HUD/VBoxContainer/MarginContainer/HBoxContainer/console" to="." method="_on_console_pressed"]
 [connection signal="timeout" from="hunger_timer" to="." method="_on_hanger_timer_timeout"]

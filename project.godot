@@ -19,6 +19,7 @@ config/icon="res://icon.png"
 
 SceneManager="*res://managers/scene_manager.gd"
 Goap="*res://goap/goap.gd"
+Debug="*res://managers/debug.gd"
 
 [display]
 
