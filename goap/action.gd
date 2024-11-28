@@ -18,6 +18,12 @@ var preconditions: Array[GoapState] # Add preconditions in _init()
 var effects: Array[GoapState] # Add effects in _init()
 
 
+#
+# Use strategy pattern to use composable execution logic
+#
+var strategy: ActionStrategy
+
+
 func get_clazz(): return "GoapAction"
 
 
