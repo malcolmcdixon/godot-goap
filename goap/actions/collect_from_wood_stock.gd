@@ -33,7 +33,6 @@ func perform(actor, delta) -> bool:
 		wood_stock_spot.add_to_group("wood_stock_spot")
 		actor.get_parent().get_node("WoodStocks").add_child(wood_stock_spot)
 		strategy.target_object.queue_free()
-		Goap.world_state.has_wood = true
 		return true
 
 	return false

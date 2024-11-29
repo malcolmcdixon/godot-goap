@@ -20,8 +20,6 @@ func perform(actor, delta) -> bool:
 		var food = strategy.target_object
 		Goap.world_state.hunger -= food.nutrition
 		food.queue_free()
-		if Goap.world_state.hunger <= 50:
-			Goap.world_state.is_hungry = false
 		return true
 
 	return false

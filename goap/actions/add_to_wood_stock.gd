@@ -33,8 +33,6 @@ func perform(actor, delta) -> bool:
 		actor.get_parent().get_node("WoodStocks").add_child(wood_stock)
 		wood_stock.position = strategy.target_position
 		strategy.target_object.queue_free()
-		Goap.world_state.is_stockpiling = true
-		Goap.world_state.has_wood = false
 		return true
 
 	return false

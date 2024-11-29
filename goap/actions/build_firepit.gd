@@ -6,6 +6,7 @@ const Firepit = preload("res://scenes/firepit.tscn")
 
 
 func _init(target: String, distance_offset: float) -> void:
+	preconditions.append(GoapState.new(Goap.States.HAS_FIREPIT, false))
 	preconditions.append(GoapState.new(Goap.States.HAS_WOOD, true))
 	effects.append(GoapState.new(Goap.States.HAS_FIREPIT, true))
 	effects.append(GoapState.new(Goap.States.HAS_WOOD, false))
@@ -24,8 +25,6 @@ func perform(actor, delta) -> bool:
 			var firepit = Firepit.instantiate()
 			firepit.position = strategy.target_position
 			actor.get_parent().add_child(firepit)
-			Goap.world_state.has_firepit = true
-			Goap.world_state.has_wood = false
 			return true
 
 	return false

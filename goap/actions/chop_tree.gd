@@ -26,7 +26,6 @@ func get_cost(blackboard) -> int:
 func perform(actor, delta) -> bool:
 	if strategy.execute(actor, delta):
 		if actor.chop_tree(strategy.target_object):
-			Goap.world_state.has_wood = true
 			return true
 
 	return false

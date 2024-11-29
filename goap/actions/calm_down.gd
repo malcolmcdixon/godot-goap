@@ -18,9 +18,4 @@ func get_cost(_blackboard) -> int:
 
 
 func perform(actor, delta) -> bool:
-	if strategy.execute(actor, delta):
-		Goap.world_state.is_frightened = false
-		Goap.world_state.protected = false
-		return true
-
-	return false
+	return strategy.execute(actor, delta)
