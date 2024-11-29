@@ -306,13 +306,6 @@ func _filter_matching_states( \
 	return matched
 
 
-#func _has_all_key_value_pairs(target: Dictionary, reference: Dictionary) -> bool:
-	## Check if target dictionary has all the key/value pairs
-	## in the reference dictionary
-	#return reference.keys().all( \
-		#func(key): return target[key] == reference[key])
-
-
 #
 # Prints plan. Used for Debugging.
 #
