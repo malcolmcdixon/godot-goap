@@ -8,7 +8,8 @@ signal created(key: Goap.States, value: Variant)
 signal updated(key: Goap.States, value: Variant)
 signal erased(key: Goap.States, value: Variant)
 # emitted for new and updated key/value pairs
-signal changed(key: Goap.States, value: Variant)
+#signal changed(key: Goap.States, value: Variant)
+signal changed(state: GoapState)
 signal cleared
 
 static var _state_key_mappings: Dictionary = {}
@@ -36,13 +37,13 @@ func _set(key: StringName, value: Variant) -> bool:
 	if exists:
 		state = _states[mapped_key]
 		state.value = value
-		updated.emit(mapped_key, value)
+		update(state)
 	else:
 		state = GoapState.new(mapped_key, value)
 		_states[mapped_key] = state
 		created.emit(mapped_key, value)
+		changed.emit(state)
 
-	changed.emit(key, value)
 	return true
 
 
@@ -67,11 +68,18 @@ func _get_mapped_key(key: StringName) -> int:
 	if _state_key_mappings.has(key):
 		return _state_key_mappings[key]
 	
+	push_warning("StateManager._get_mapped_key: Key '%s' not found." % key)
 	return NO_KEY_MAPPING
 
-
-func update(state: Goap.States, value: Variant) -> void:
-	pass
+#
+# Replace the stored GoapState object
+#
+func update(state: GoapState) -> void:
+	var key: int = state.key
+	var value: Variant = state.value
+	_states[key] = state
+	updated.emit(key, value)
+	changed.emit(state)
 
 
 func get_or_default(key: Goap.States, default: Variant = null) -> Variant:
@@ -85,10 +93,7 @@ func get_or_default(key: Goap.States, default: Variant = null) -> Variant:
 func get_states() -> Array[GoapState]:
 	var states: Array[GoapState] = []
 	states.append_array(_states.values())
-	if states:
-		return states
-	else:
-		return []
+	return states
 
 
 func clear() -> void:
