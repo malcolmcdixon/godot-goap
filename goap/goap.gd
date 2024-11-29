@@ -13,6 +13,7 @@
 #
 extends Node
 
+
 # States allowed in this GOAP system, mainly used by StateManager and GoapState
 enum States {
 	HAS_FIREPIT,
@@ -22,24 +23,33 @@ enum States {
 	HAS_WOOD,
 	PROTECTED,
 	POSITION,
-	IS_STOCKPILING
+	IS_STOCKPILING,
 }
 
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 
 # world state #
-var world_state: StateManager = StateManager.new()
+var world_state: StateManager = StateManager.new(
+	[
+		GoapState.new(Goap.States.HAS_FIREPIT, false),
+		GoapState.new(Goap.States.HAS_WOOD, false),
+		GoapState.new(Goap.States.IS_STOCKPILING, false),
+		GoapState.new(Goap.States.IS_HUNGRY, false),
+		GoapState.new(Goap.States.HUNGER, 0),
+		GoapState.new(Goap.States.PROTECTED, false),
+	]
+)
 
 
 func _ready() -> void:
 	_action_planner.set_actions([
-		BuildFirepitAction.new(),
+		BuildFirepitAction.new("firepit_spot", 20.0),
 		ChopTreeAction.new(),
-		CollectFromWoodStockAction.new(),
-		CalmDownAction.new(),
+		CollectFromWoodStockAction.new("wood_stock", 10.0),
+		CalmDownAction.new(5.0),
 		FindCoverAction.new(),
 		FindFoodAction.new(),
-		AddToWoodStockAction.new()
+		AddToWoodStockAction.new("wood_stock_spot", 10.0),
 	])
 
 
