@@ -28,3 +28,7 @@ func _to_string() -> String:
 
 func equals(other: GoapState) -> bool:
 	return other != null and _key == other.key and _value == other.value
+
+
+func copy() -> GoapState:
+	return GoapState.new(self.key, self.value)
