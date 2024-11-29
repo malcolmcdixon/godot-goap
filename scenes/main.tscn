@@ -4473,9 +4473,5 @@ editable = false
 shortcut_keys_enabled = false
 virtual_keyboard_enabled = false
 
-[node name="hunger_timer" type="Timer" parent="."]
-autostart = true
-
 [connection signal="pressed" from="HUD/VBoxContainer/MarginContainer/HBoxContainer/reload" to="." method="_on_reload_pressed"]
 [connection signal="pressed" from="HUD/VBoxContainer/MarginContainer/HBoxContainer/pause" to="." method="_on_pause_pressed"]
-[connection signal="timeout" from="hunger_timer" to="." method="_on_hanger_timer_timeout"]
