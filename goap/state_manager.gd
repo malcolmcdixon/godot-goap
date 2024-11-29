@@ -29,14 +29,19 @@ func _set(key: StringName, value: Variant) -> bool:
 	var mapped_key: int = _get_mapped_key(key)
 	if mapped_key == NO_KEY_MAPPING:
 		return false
+
 	var exists: bool = _states.has(mapped_key)
-	var state = GoapState.new(mapped_key, value)
-	_states[mapped_key] = state
-	
+
+	var state: GoapState
 	if exists:
+		state = _states[mapped_key]
+		state.value = value
 		updated.emit(mapped_key, value)
 	else:
+		state = GoapState.new(mapped_key, value)
+		_states[mapped_key] = state
 		created.emit(mapped_key, value)
+
 	changed.emit(key, value)
 	return true
 
@@ -59,9 +64,14 @@ func _to_string() -> String:
 
 
 func _get_mapped_key(key: StringName) -> int:
-	assert(_state_key_mappings.has(key), \
-		"Invalid key: %s. Ensure it exists in Goap.States" % key)
-	return _state_key_mappings[key]
+	if _state_key_mappings.has(key):
+		return _state_key_mappings[key]
+	
+	return NO_KEY_MAPPING
+
+
+func update(state: Goap.States, value: Variant) -> void:
+	pass
 
 
 func get_or_default(key: Goap.States, default: Variant = null) -> Variant:
