@@ -14,6 +14,7 @@ class_name GoapGoal
 # but inside your goal you can deal with it as "is_hungry".
 #
 var desired_state: GoapState # Add desired state in _init()
+var context_state: StateManager
 
 
 func get_clazz(): return "GoapGoal"
