@@ -11,7 +11,7 @@ func get_clazz(): return "KeepFirepitBurningGoal"
 
 
 func is_valid() -> bool:
-	return SceneManager.get_elements("firepit").size() == 0
+	return not Goap.world_state.has_firepit
 
 
 func priority() -> int:
