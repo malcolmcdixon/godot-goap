@@ -2,7 +2,6 @@ extends ActionStrategy
 class_name TimerActionStrategy
 
 
-var _timer: SceneTreeTimer
 var _duration: float:
 	set(value):
 		_duration = max(value, 0.0)
