@@ -15,7 +15,6 @@ extends CharacterBody2D
 signal hunger_updated(hunger: int)
 
 @onready var body: AnimatedSprite2D = %body
-@onready var calm_down_timer: Timer = %calm_down_timer
 @onready var labels_container: VBoxContainer = %labels
 @onready var detection_radius: Area2D = %detection_radius
 @onready var hunger_timer: Timer = %HungerTimer
