@@ -30,13 +30,13 @@ func _stop_internal(actor: Node) -> bool:
 # Derived classes to override these methods
 # Only _execute needs to be overridden
 #
-func _start(actor: Node) -> bool:
+func _start(_actor: Node) -> bool:
 	return true
 
 
-func _execute(actor: Node, delta: float) -> bool:
+func _execute(_actor: Node, delta: float) -> bool:
 	return true
 
 
-func _stop(actor: Node) -> bool:
+func _stop(_actor: Node) -> bool:
 	return true
