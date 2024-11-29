@@ -5,13 +5,11 @@ class_name BuildFirepitAction
 const Firepit = preload("res://scenes/firepit.tscn")
 
 
-func _init() -> void:
+func _init(target: String, distance_offset: float) -> void:
 	preconditions.append(GoapState.new(Goap.States.HAS_WOOD, true))
 	effects.append(GoapState.new(Goap.States.HAS_FIREPIT, true))
 	effects.append(GoapState.new(Goap.States.HAS_WOOD, false))
-	strategy = MoveToTargetStrategy.new()
-	strategy.target_object = "firepit_spot"
-	strategy.distance_offset = 20.0
+	strategy = MoveToTargetActionStrategy.new(target, distance_offset)
 
 
 func get_clazz(): return "BuildFirepitAction"
@@ -26,8 +24,8 @@ func perform(actor, delta) -> bool:
 			var firepit = Firepit.instantiate()
 			firepit.position = strategy.target_position
 			actor.get_parent().add_child(firepit)
-			Goap.world_state.has_wood = false
 			Goap.world_state.has_firepit = true
+			Goap.world_state.has_wood = false
 			return true
 
 	return false
