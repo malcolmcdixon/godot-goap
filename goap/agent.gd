@@ -49,9 +49,6 @@ func _make_plan(goal: GoapGoal) -> void:
 	# Goal specific states
 	_blackboard.is_stockpiling = goal is KeepWoodStockedGoal
 	
-	# print blackboard
-	prints("Blackboard:", _blackboard)
-	
 	var start_time: float = Time.get_ticks_usec()
 
 	_current_plan = Goap.get_action_planner().get_plan(_current_goal, _blackboard)
