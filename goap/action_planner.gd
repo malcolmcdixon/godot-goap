@@ -11,12 +11,28 @@ const INT_INF: int = 9223372036854775807
 var _actions: Array[GoapAction] = []
 #var _memoized_plans: Dictionary = {}
 
+
 #
 # set actions available for planning.
 # this can be changed in runtime for more dynamic options.
 #
+func _init(actions: Array[GoapAction] = [] ) -> void:
+	_actions = actions
+	
+# Bulk replace all actions in the planner	
 func set_actions(actions: Array[GoapAction]) -> void:
 	_actions = actions
+
+
+# Add a single action to the list
+func add_action(action: GoapAction) -> void:
+	if action not in _actions:
+		_actions.append(action)
+
+
+# Remove a single action from the list
+func remove_action(action: GoapAction) -> void:
+	_actions.erase(action)
 
 
 #
@@ -142,7 +158,7 @@ func _build_plans(
 		new_plan.add_step(
 			action,
 			action.get_cost(blackboard),
-			updated_state,
+			updated_state.duplicate(),
 			matched_blackboard_states
 		)
 
