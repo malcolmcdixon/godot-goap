@@ -4398,6 +4398,7 @@ position = Vector2(230, 230)
 position = Vector2(189.468, 165.449)
 
 [node name="satyr" parent="." instance=ExtResource("4")]
+unique_name_in_owner = true
 position = Vector2(165.003, 153.876)
 
 [node name="troll" parent="." instance=ExtResource("3")]

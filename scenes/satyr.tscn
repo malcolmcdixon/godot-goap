@@ -122,8 +122,7 @@ unique_name_in_owner = true
 texture_filter = 1
 position = Vector2(0, -12)
 sprite_frames = SubResource("13")
-animation = &"idle"
-frame = 1
+animation = &"attack"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -7)
@@ -136,11 +135,6 @@ collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="detection_radius"]
 shape = SubResource("15")
-
-[node name="calm_down_timer" type="Timer" parent="."]
-unique_name_in_owner = true
-wait_time = 5.0
-one_shot = true
 
 [node name="labels" type="Node2D" parent="."]
 z_index = 100
@@ -165,3 +159,7 @@ text = "Hungry"
 visible = false
 layout_mode = 2
 text = "Afraid"
+
+[node name="HungerTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+autostart = true

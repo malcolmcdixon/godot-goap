@@ -12,13 +12,18 @@
 extends CharacterBody2D
 
 
+signal hunger_updated(hunger: int)
+
 @onready var body: AnimatedSprite2D = %body
 @onready var calm_down_timer: Timer = %calm_down_timer
-@onready var labels: VBoxContainer = %labels
+@onready var labels_container: VBoxContainer = %labels
 @onready var detection_radius: Area2D = %detection_radius
+@onready var hunger_timer: Timer = %HungerTimer
 
+var _labels: Array[Label] = []
 var is_moving: bool = false
 var is_attacking: bool = false
+
 
 func _ready() -> void:
   # Here is where I define which goals are available for this
@@ -32,24 +37,32 @@ func _ready() -> void:
 		KeepFedGoal.new(),
 		CalmDownGoal.new(),
 		RelaxGoal.new(),
-		KeepWoodStockedGoal.new()
+		KeepWoodStockedGoal.new(),
 		],
 		[
 			GoapState.new(Goap.States.HAS_WOOD, false),
-			GoapState.new(Goap.States.IS_STOCKPILING, false)
+			GoapState.new(Goap.States.IS_STOCKPILING, false),
+			GoapState.new(Goap.States.HAS_FIREPIT, false),
+			GoapState.new(Goap.States.IS_HUNGRY, false),
+			GoapState.new(Goap.States.HUNGER, 0),
+			GoapState.new(Goap.States.PROTECTED, false),
 		]
 	)
 	
 	add_child(agent)
+	
+	# Get state indicator labels
+	for label in labels_container.get_children():
+		_labels.append(label)
 
 	# connect to signals
-	calm_down_timer.timeout.connect(_on_calm_down_timer_timeout)
 	detection_radius.body_entered.connect(_on_detection_radius_body_entered)
+	hunger_timer.timeout.connect(_on_hunger_timer_timeout)
 
 
 func _process(_delta: float) -> void:
-	labels.get_child(0).visible = Goap.world_state.get_or_default(Goap.States.HUNGER, 0) >= 50
-	labels.get_child(1).visible = Goap.world_state.get_or_default(Goap.States.IS_FRIGHTENED, false)
+	_labels[0].visible = Goap.world_state.get_or_default(Goap.States.HUNGER, 0) >= 50
+	_labels[1].visible = Goap.world_state.get_or_default(Goap.States.IS_FRIGHTENED, false)
 
 	if is_attacking:
 		body.play("attack")
@@ -57,7 +70,6 @@ func _process(_delta: float) -> void:
 		is_moving = false
 	else:
 		body.play("idle")
-
 
 
 func move_to(direction: Vector2, delta: float) -> void:
@@ -69,9 +81,8 @@ func move_to(direction: Vector2, delta: float) -> void:
 	else:
 		turn_left()
 
-  # warning-ignore:return_value_discarded
+	# warning-ignore:return_value_discarded
 	move_and_collide(direction * delta * 100)
-
 
 
 func turn_right() -> void:
@@ -94,21 +105,17 @@ func chop_tree(tree: TreeToChop) -> bool:
 	return is_finished
 
 
-func calm_down() -> bool:
-	if Goap.world_state.is_frightened == false:
-		return true
-
-	if calm_down_timer.is_stopped():
-		calm_down_timer.start()
-
-	return false
-
-
 func _on_detection_radius_body_entered(detected: Node2D) -> void:
 	if detected.is_in_group("troll"):
 		Goap.world_state.is_frightened = true
 
 
-func _on_calm_down_timer_timeout() -> void:
-	Goap.world_state.is_frightened = false
-	
+func _on_hunger_timer_timeout() -> void:
+	var hunger = Goap.world_state.hunger
+	if hunger < 100:
+		hunger += 2
+		hunger_updated.emit(hunger)
+		if hunger > 50:
+			Goap.world_state.is_hungry = true
+		
+		Goap.world_state.hunger = hunger
