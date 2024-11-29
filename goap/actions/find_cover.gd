@@ -4,7 +4,9 @@ class_name FindCoverAction
 
 
 func _init() -> void:
+	preconditions.append(GoapState.new(Goap.States.IS_FRIGHTENED, true))
 	effects.append(GoapState.new(Goap.States.PROTECTED, true))
+	strategy = MoveToTargetActionStrategy.new("cover", 1.0)
 
 
 func get_clazz(): return "FindCoverAction"
@@ -15,13 +17,8 @@ func get_cost(_blackboard) -> int:
 
 
 func perform(actor, delta) -> bool:
-	var closest_cover = SceneManager.get_closest_element("cover", actor)
-
-	if closest_cover == null:
-		return false
-
-	if closest_cover.position.distance_to(actor.position) < 1:
+	if strategy.execute(actor, delta):
+		Goap.world_state.protected = true
 		return true
 
-	actor.move_to(actor.position.direction_to(closest_cover.position), delta)
 	return false

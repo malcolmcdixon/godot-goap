@@ -6,6 +6,7 @@ class_name ChopTreeAction
 func _init() -> void:
 	preconditions.append(GoapState.new(Goap.States.HAS_WOOD, false))
 	effects.append(GoapState.new(Goap.States.HAS_WOOD, true))
+	strategy = MoveToTargetActionStrategy.new("tree", 10.0)
 
 
 func get_clazz(): return "ChopTreeAction"
@@ -23,15 +24,9 @@ func get_cost(blackboard) -> int:
 
 
 func perform(actor, delta) -> bool:
-	var _closest_tree = SceneManager.get_closest_element("tree", actor)
-
-	if _closest_tree:
-		if _closest_tree.position.distance_to(actor.position) < 10:
-				if actor.chop_tree(_closest_tree):
-					Goap.world_state.has_wood = true
-					return true
-				return false
-		else:
-			actor.move_to(actor.position.direction_to(_closest_tree.position), delta)
+	if strategy.execute(actor, delta):
+		if actor.chop_tree(strategy.target_object):
+			Goap.world_state.has_wood = true
+			return true
 
 	return false

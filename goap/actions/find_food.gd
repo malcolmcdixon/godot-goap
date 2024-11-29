@@ -5,6 +5,7 @@ class_name FindFoodAction
 
 func _init() -> void:
 	effects.append(GoapState.new(Goap.States.IS_HUNGRY, false))
+	strategy = MoveToTargetActionStrategy.new("food", 5.0)
 
 
 func get_clazz(): return "FindFoodAction"
@@ -15,15 +16,12 @@ func get_cost(_blackboard) -> int:
 
 
 func perform(actor, delta) -> bool:
-	var closest_food = SceneManager.get_closest_element("food", actor)
-
-	if closest_food == null:
-		return false
-
-	if closest_food.position.distance_to(actor.position) < 5:
-		Goap.world_state.hunger -= closest_food.nutrition
-		closest_food.queue_free()
+	if strategy.execute(actor, delta):
+		var food = strategy.target_object
+		Goap.world_state.hunger -= food.nutrition
+		food.queue_free()
+		if Goap.world_state.hunger <= 50:
+			Goap.world_state.is_hungry = false
 		return true
 
-	actor.move_to(actor.position.direction_to(closest_food.position), delta)
 	return false
