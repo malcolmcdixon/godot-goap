@@ -1,9 +1,9 @@
 #
 # Action Contract
 #
+class_name GoapAction
 extends Node
 
-class_name GoapAction
 
 #
 # Action requirements.
