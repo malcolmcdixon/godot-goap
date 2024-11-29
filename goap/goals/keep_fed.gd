@@ -11,9 +11,9 @@ func get_clazz(): return "KeepFedGoal"
 
 # This is not a valid goal when hunger is less than 50.
 func is_valid() -> bool:
-	return Goap.world_state.get_or_default(Goap.States.HUNGER, 0)  > 50 and \
+	return Goap.world_state.is_hungry and \
 		SceneManager.get_elements("food").size() > 0
 
 
 func priority() -> int:
-	return 2 if Goap.world_state.get_or_default(Goap.States.HUNGER, 0) < 75 else 3
+	return 2 if Goap.world_state.hunger < 75 else 3
