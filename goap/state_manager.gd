@@ -1,14 +1,13 @@
-extends Node
 class_name StateManager
+extends Node
 
 
 const NO_KEY_MAPPING = -1
 
-signal created(key: Goap.States, value: Variant)
-signal updated(key: Goap.States, value: Variant)
-signal erased(key: Goap.States, value: Variant)
+signal created(state: GoapState)
+signal updated(state: GoapState)
+signal erased(state: GoapState)
 # emitted for new and updated key/value pairs
-#signal changed(key: Goap.States, value: Variant)
 signal changed(state: GoapState)
 signal cleared
 
@@ -41,7 +40,7 @@ func _set(key: StringName, value: Variant) -> bool:
 	else:
 		state = GoapState.new(mapped_key, value)
 		_states[mapped_key] = state
-		created.emit(mapped_key, value)
+		created.emit(state)
 		changed.emit(state)
 
 	return true
@@ -76,9 +75,8 @@ func _get_mapped_key(key: StringName) -> int:
 #
 func update(state: GoapState) -> void:
 	var key: int = state.key
-	var value: Variant = state.value
 	_states[key] = state
-	updated.emit(key, value)
+	updated.emit(state)
 	changed.emit(state)
 
 
