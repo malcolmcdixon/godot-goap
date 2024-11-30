@@ -43,13 +43,13 @@ var world_state: StateManager = StateManager.new(
 
 func _ready() -> void:
 	_action_planner.set_actions([
-		BuildFirepitAction.new("firepit_spot", 20.0),
+		BuildFirepitAction.new(),
 		ChopTreeAction.new(),
-		CollectFromWoodStockAction.new("wood_stock", 10.0),
+		CollectFromWoodStockAction.new(),
 		CalmDownAction.new(5.0),
 		FindCoverAction.new(),
 		FindFoodAction.new(),
-		AddToWoodStockAction.new("wood_stock_spot", 10.0),
+		AddToWoodStockAction.new(),
 	])
 
 
