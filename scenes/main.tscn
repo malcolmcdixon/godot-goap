@@ -4278,6 +4278,7 @@ sources/25 = SubResource("TileSetAtlasSource_o0ei5")
 sources/26 = SubResource("TileSetAtlasSource_qcwn3")
 
 [node name="main" type="Node2D"]
+y_sort_enabled = true
 script = ExtResource("8")
 
 [node name="Forest" type="TileMapLayer" parent="."]
