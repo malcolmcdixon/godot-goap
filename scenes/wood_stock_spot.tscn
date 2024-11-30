@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://b37gfph7nveff"]
+
+[node name="WoodStockSpot" type="Node2D" groups=["wood_stock_spot"]]
