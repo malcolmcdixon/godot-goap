@@ -9,8 +9,6 @@ var context: Dictionary:
 
 
 func _set(key: StringName, value: Variant) -> bool:
-	#if key in self.get_property_list():
-		#return false
 	_context[key] = value
 	return true
 
