@@ -5,8 +5,19 @@ class_name ChopTreeAction
 
 func _init() -> void:
 	preconditions.append(GoapState.new(Goap.States.HAS_WOOD, false))
+
 	effects.append(GoapState.new(Goap.States.HAS_WOOD, true))
-	strategy = MoveToTargetActionStrategy.new("tree", 10.0)
+
+	strategy = MultiActionStrategy.new(
+		[
+			MoveToTargetActionStrategy.new("tree", 10.0),
+			DoActionStrategy.new(
+				func(): return strategy.context.actor.chop_tree(
+					strategy.context.target_object
+				)
+			),
+		]
+	)
 
 
 func get_clazz(): return "ChopTreeAction"
@@ -24,8 +35,4 @@ func get_cost(blackboard) -> int:
 
 
 func perform(actor, delta) -> bool:
-	if strategy.execute(actor, delta):
-		if actor.chop_tree(strategy.target_object):
-			return true
-
-	return false
+	return strategy.execute(actor, delta)

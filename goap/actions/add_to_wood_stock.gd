@@ -3,15 +3,25 @@ extends GoapAction
 class_name AddToWoodStockAction
 
 
-const Woodstock = preload("res://scenes/wood_stock.tscn")
+const WOODSTOCK = preload("res://scenes/wood_stock.tscn")
 
 
-func _init(target: String, distance_offset: float) -> void:
+func _init() -> void:
 	preconditions.append(GoapState.new(Goap.States.HAS_WOOD, true))
+
 	effects.append(GoapState.new(Goap.States.IS_STOCKPILING, true))
 	effects.append(GoapState.new(Goap.States.HAS_WOOD, false))
-	strategy = MoveToTargetActionStrategy.new(target, distance_offset)
 
+	strategy = MultiActionStrategy.new(
+		[
+			# Move to nearest wood stock
+			MoveToTargetActionStrategy.new("wood_stock_spot", 10.0),
+			# Add a wood stock object
+			PutDownActionStrategy.new(WOODSTOCK),
+			# Pick up wood
+			PickUpActionStrategy.new(null, true),
+		]
+	)
 
 func get_clazz(): return "AddToWoodStockAction"
 
@@ -28,11 +38,4 @@ func get_cost(blackboard) -> int:
 
 
 func perform(actor, delta) -> bool:
-	if strategy.execute(actor, delta):
-		var wood_stock = Woodstock.instantiate()
-		actor.get_parent().get_node("WoodStocks").add_child(wood_stock)
-		wood_stock.position = strategy.target_position
-		strategy.target_object.queue_free()
-		return true
-
-	return false
+	return strategy.execute(actor, delta)
