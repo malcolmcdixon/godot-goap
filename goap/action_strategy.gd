@@ -3,9 +3,13 @@ class_name ActionStrategy
 
 
 var _started: bool = false
+var context: StrategyContext = StrategyContext.new()
 
 
 func execute(actor: Node, delta: float) -> bool:
+	# Make actor accessible to all strategies through the context
+	context.actor = actor
+	
 	if not _started:
 		if not _start_internal(actor):
 			return false
@@ -34,7 +38,7 @@ func _start(_actor: Node) -> bool:
 	return true
 
 
-func _execute(_actor: Node, delta: float) -> bool:
+func _execute(_actor: Node, _delta: float) -> bool:
 	return true
 
 
