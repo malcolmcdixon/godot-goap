@@ -1,6 +1,5 @@
-extends GoapAction
-
 class_name FindFoodAction
+extends GoapAction
 
 
 func _init() -> void:

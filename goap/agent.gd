@@ -6,9 +6,9 @@
 # As good practice, I suggest leaving it isolated like
 # this, so it makes re-use easy and it doesn't get tied
 # to unrelated implementation details (movement, collisions, etc)
+class_name GoapAgent
 extends Node
 
-class_name GoapAgent
 
 var _goals: Array[GoapGoal]
 var _current_goal: GoapGoal
@@ -55,6 +55,7 @@ func _make_plan(goal: GoapGoal) -> void:
 	_current_plan = Goap.get_action_planner().get_plan(_current_goal, _blackboard)
 
 	prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
+
 	_current_plan_step = 0
 
 
@@ -74,7 +75,6 @@ func _on_state_changed(state: GoapState) -> void:
 # Returns the highest priority goal available.
 #
 func _get_best_goal() -> GoapGoal:
-	#var start_time: float = Time.get_ticks_usec()
 	var best_goal: GoapGoal = null
 	var highest_priority: int = -1
 	var valid_goals = _goals.filter(func(goal): return goal.is_valid())
@@ -84,8 +84,6 @@ func _get_best_goal() -> GoapGoal:
 		if priority > highest_priority:
 			highest_priority = priority
 			best_goal = goal
-
-	#prints("Time Elapsed for getting best goal:", Time.get_ticks_usec() - start_time)
 
 	return best_goal
 

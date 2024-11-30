@@ -1,5 +1,5 @@
-extends ActionStrategy
 class_name MultiActionStrategy
+extends ActionStrategy
 
 
 var _strategies: Array[ActionStrategy] = []

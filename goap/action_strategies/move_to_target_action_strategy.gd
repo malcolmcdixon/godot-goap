@@ -1,5 +1,5 @@
-extends ActionStrategy
 class_name MoveToTargetActionStrategy
+extends ActionStrategy
 
 
 var _target: String

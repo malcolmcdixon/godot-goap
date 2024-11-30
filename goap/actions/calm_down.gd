@@ -1,6 +1,5 @@
-extends GoapAction
-
 class_name CalmDownAction
+extends GoapAction
 
 
 func _init(duration: float) -> void:

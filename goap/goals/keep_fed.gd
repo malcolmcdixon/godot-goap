@@ -1,6 +1,5 @@
-extends GoapGoal
-
 class_name KeepFedGoal
+extends GoapGoal
 
 
 func _init() -> void:

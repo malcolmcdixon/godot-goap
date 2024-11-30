@@ -1,6 +1,5 @@
-extends GoapAction
-
 class_name AddToWoodStockAction
+extends GoapAction
 
 
 const WOODSTOCK = preload("res://scenes/wood_stock.tscn")

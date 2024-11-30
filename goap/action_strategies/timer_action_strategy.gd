@@ -1,5 +1,5 @@
-extends ActionStrategy
 class_name TimerActionStrategy
+extends ActionStrategy
 
 
 var _duration: float:

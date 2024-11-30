@@ -1,6 +1,6 @@
+class_name RelaxGoal
 extends GoapGoal
 
-class_name RelaxGoal
 
 func get_clazz(): return "RelaxGoal"
 

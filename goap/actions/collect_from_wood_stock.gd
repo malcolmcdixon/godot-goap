@@ -1,6 +1,5 @@
-extends GoapAction
-
 class_name CollectFromWoodStockAction
+extends GoapAction
 
 
 var WOOD_STOCK_SPOT: PackedScene = preload("res://scenes/wood_stock_spot.tscn")

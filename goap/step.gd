@@ -1,5 +1,5 @@
-extends RefCounted
 class_name  GoapStep
+extends RefCounted
 
 
 var action: GoapAction

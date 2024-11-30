@@ -1,6 +1,6 @@
+class_name BuildFirepitAction
 extends GoapAction
 
-class_name BuildFirepitAction
 
 const FIREPIT: PackedScene = preload("res://scenes/firepit.tscn")
 

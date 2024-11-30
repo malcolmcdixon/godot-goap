@@ -1,6 +1,5 @@
-extends GoapAction
-
 class_name FindCoverAction
+extends GoapAction
 
 
 func _init() -> void:

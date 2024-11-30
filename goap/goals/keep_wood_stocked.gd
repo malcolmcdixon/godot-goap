@@ -1,6 +1,5 @@
-extends GoapGoal
-
 class_name KeepWoodStockedGoal
+extends GoapGoal
 
 
 func _init() -> void:

@@ -1,5 +1,5 @@
-extends RefCounted
 class_name GoapPlan
+extends RefCounted
 
 static var NO_PLAN: GoapPlan
 

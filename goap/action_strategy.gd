@@ -1,5 +1,5 @@
-extends RefCounted
 class_name ActionStrategy
+extends RefCounted
 
 
 var _started: bool = false
