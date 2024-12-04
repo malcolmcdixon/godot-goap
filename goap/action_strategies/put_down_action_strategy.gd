@@ -28,6 +28,10 @@ func _start(actor: Node) -> bool:
 func _execute(_actor: Node, _delta: float) -> bool:
 	var object: Node = _object.instantiate()
 	object.position = self.context.target_object.position
+
 	_parent.add_child(object)
+
+	#### CONTEXT FOR OBJECT PUT DOWN ####
+	self.context.item_put_down = object
 
 	return true
