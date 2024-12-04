@@ -88,6 +88,11 @@ func get_or_default(key: Goap.States, default: Variant = null) -> Variant:
 		return default
 
 
+func apply_effects(effects: Array[GoapState]) -> void:
+		for effect: GoapState in effects:
+			self.update(effect.copy())
+
+
 func get_states() -> Array[GoapState]:
 	var states: Array[GoapState] = []
 	states.append_array(_states.values())
