@@ -1,6 +1,7 @@
 # This NPC does not use GOAP.
 # This is just a simple script which chooses
 # a random position in the scene to move to.
+class_name Troll
 extends CharacterBody2D
 
 
