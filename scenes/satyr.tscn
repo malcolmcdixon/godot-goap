@@ -1,7 +1,8 @@
-[gd_scene load_steps=18 format=3 uid="uid://cr6noovmcl47a"]
+[gd_scene load_steps=19 format=3 uid="uid://cr6noovmcl47a"]
 
 [ext_resource type="Texture2D" uid="uid://cti7xghajrbgq" path="res://sprites/satyr_.png" id="1"]
 [ext_resource type="Script" path="res://scenes/satyr.gd" id="2"]
+[ext_resource type="Script" path="res://goap/agent.gd" id="3_21ph0"]
 
 [sub_resource type="AtlasTexture" id="9"]
 atlas = ExtResource("1")
@@ -112,10 +113,11 @@ animations = [{
 size = Vector2(5.08686, 7.07948)
 
 [sub_resource type="CircleShape2D" id="15"]
-radius = 54.6939
+radius = 50.0
 
-[node name="satyr" type="CharacterBody2D"]
+[node name="satyr" type="CharacterBody2D" node_paths=PackedStringArray("agent")]
 script = ExtResource("2")
+agent = NodePath("GoapAgent")
 
 [node name="body" type="AnimatedSprite2D" parent="."]
 unique_name_in_owner = true
@@ -131,7 +133,7 @@ shape = SubResource("14")
 [node name="detection_radius" type="Area2D" parent="."]
 unique_name_in_owner = true
 position = Vector2(0, -7)
-collision_mask = 2
+collision_mask = 6
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="detection_radius"]
 shape = SubResource("15")
@@ -153,13 +155,19 @@ alignment = 2
 [node name="hungry_label" type="Label" parent="labels/labels"]
 visible = false
 layout_mode = 2
+theme_override_font_sizes/font_size = 12
 text = "Hungry"
 
 [node name="afraid_label" type="Label" parent="labels/labels"]
 visible = false
 layout_mode = 2
+theme_override_font_sizes/font_size = 12
 text = "Afraid"
 
 [node name="HungerTimer" type="Timer" parent="."]
 unique_name_in_owner = true
 autostart = true
+
+[node name="GoapAgent" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_21ph0")
