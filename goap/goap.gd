@@ -24,6 +24,8 @@ enum States {
 	PROTECTED,
 	POSITION,
 	IS_STOCKPILING,
+	BURN_TIME,
+	NEAR_FOOD,
 }
 
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
@@ -32,11 +34,14 @@ var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 var world_state: StateManager = StateManager.new(
 	[
 		GoapState.new(Goap.States.HAS_FIREPIT, false),
-		GoapState.new(Goap.States.HAS_WOOD, false),
-		GoapState.new(Goap.States.IS_STOCKPILING, false),
 		GoapState.new(Goap.States.IS_HUNGRY, false),
 		GoapState.new(Goap.States.HUNGER, 0),
+		GoapState.new(Goap.States.IS_FRIGHTENED, false),
+		GoapState.new(Goap.States.HAS_WOOD, false),
 		GoapState.new(Goap.States.PROTECTED, false),
+		GoapState.new(Goap.States.IS_STOCKPILING, false),
+		GoapState.new(Goap.States.BURN_TIME, 0),
+		GoapState.new(Goap.States.NEAR_FOOD, false),
 	]
 )
 
