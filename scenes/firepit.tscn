@@ -39,7 +39,7 @@ animations = [{
 "speed": 10.0
 }]
 
-[node name="firepit" type="Node2D" groups=["firepit"]]
+[node name="Firepit" type="Node2D" groups=["firepit"]]
 texture_filter = 1
 script = ExtResource("2")
 
