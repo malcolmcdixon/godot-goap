@@ -14,6 +14,8 @@ extends CharacterBody2D
 
 signal hunger_updated(hunger: int)
 
+
+@export var agent: GoapAgent
 @onready var body: AnimatedSprite2D = %body
 @onready var labels_container: VBoxContainer = %labels
 @onready var detection_radius: Area2D = %detection_radius
@@ -30,32 +32,79 @@ func _ready() -> void:
   # dynamically. Depending on your use case you might want to
   # have a way to define different goal priorities depending on
   # npc.
-	var agent: GoapAgent = GoapAgent.new()
-	agent.init(self, [
-		KeepFirepitBurningGoal.new(),
-		KeepFedGoal.new(),
-		CalmDownGoal.new(),
-		RelaxGoal.new(),
-		KeepWoodStockedGoal.new(),
-		],
+	agent.init(
+		self,
 		[
-			GoapState.new(Goap.States.HAS_WOOD, false),
-			GoapState.new(Goap.States.IS_STOCKPILING, false),
-			GoapState.new(Goap.States.HAS_FIREPIT, false),
-			GoapState.new(Goap.States.IS_HUNGRY, false),
-			GoapState.new(Goap.States.HUNGER, 0),
-			GoapState.new(Goap.States.PROTECTED, false),
+			KeepFirepitBurningGoal.new(),
+			KeepFedGoal.new(),
+			CalmDownGoal.new(),
+			RelaxGoal.new(),
+			KeepWoodStockedGoal.new(),
 		]
 	)
 	
-	add_child(agent)
+	# Add sensors used by the agent
+	var sensor = AreaGoapSensor.new(
+		agent,
+		SignalConnection.new(
+			"body_entered",
+			detection_radius
+			),
+	)
+	
+	agent.add_sensor(sensor)
+	
+	var rule: GoapRule = GoapRule.new(
+		"Troll Proximity",
+		func(node): return node is Troll,
+		[GoapState.new(Goap.States.IS_FRIGHTENED, true)]
+	)
+	
+	sensor.add_rule(rule)
+	
+	rule = GoapRule.new(
+		"Food Proximity",
+		func(node): return node is Mushroom,
+		[GoapState.new(Goap.States.NEAR_FOOD, true)]
+	)
+	
+	sensor.add_rule(rule)
+	
+	sensor = AreaGoapSensor.new(
+		agent,
+		SignalConnection.new(
+			"body_exited",
+			detection_radius
+			),
+	)
+	
+	agent.add_sensor(sensor)
+	
+	rule = GoapRule.new(
+		"Food Proximity",
+		func(node): return node is Mushroom,
+		[GoapState.new(Goap.States.NEAR_FOOD, false)]
+	)
+	
+	sensor.add_rule(rule)
+	
+	agent.add_sensor(
+		GoapSensor.new(
+			agent,
+			SignalConnection.new(
+				"burn_time_changed",
+				null,
+				func(node): return node is Firepit
+			),
+			[GoapState.new(Goap.States.BURN_TIME, false)]
+		)
+	)
 	
 	# Get state indicator labels
 	for label in labels_container.get_children():
 		_labels.append(label)
 
 	# connect to signals
-	detection_radius.body_entered.connect(_on_detection_radius_body_entered)
 	hunger_timer.timeout.connect(_on_hunger_timer_timeout)
 
 
@@ -75,38 +124,16 @@ func move_to(direction: Vector2, delta: float) -> void:
 	is_moving = true
 	is_attacking = false
 	body.play("run")
-	if direction.x > 0:
-		turn_right()
-	else:
-		turn_left()
+	body.flip_h = direction.x < 0
 
 	# warning-ignore:return_value_discarded
 	move_and_collide(direction * delta * 100)
-
-
-func turn_right() -> void:
-	if not body.flip_h:
-		return
-
-	body.flip_h = false
-
-
-func turn_left() -> void:
-	if body.flip_h:
-		return
-
-	body.flip_h = true
 
 
 func chop_tree(tree: TreeToChop) -> bool:
 	var is_finished = tree.chop()
 	is_attacking = not is_finished
 	return is_finished
-
-
-func _on_detection_radius_body_entered(detected: Node2D) -> void:
-	if detected.is_in_group("troll"):
-		Goap.world_state.is_frightened = true
 
 
 func _on_hunger_timer_timeout() -> void:
