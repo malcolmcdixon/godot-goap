@@ -19,7 +19,10 @@ signal hunger_updated(hunger: int)
 @onready var body: AnimatedSprite2D = %body
 @onready var labels_container: VBoxContainer = %labels
 @onready var detection_radius: Area2D = %detection_radius
+@onready var close_proxity_detector: Area2D = %close_proxity_detector
 @onready var hunger_timer: Timer = %HungerTimer
+@onready var rotation_anchor: Node2D = %RotationAnchor
+
 
 var _labels: Array[Label] = []
 var is_moving: bool = false
@@ -40,11 +43,16 @@ func _ready() -> void:
 			CalmDownGoal.new(),
 			RelaxGoal.new(),
 			KeepWoodStockedGoal.new(),
+			PrepareWoodGoal.new(),
+			AvoidEnemyGoal.new(),
 		]
 	)
 	
 	# Add sensors used by the agent
-	var sensor = AreaGoapSensor.new(
+	#
+	# Sensor to detect when close to another Area2D
+	#
+	var sensor = NodeGoapSensor.new(
 		agent,
 		SignalConnection.new(
 			"body_entered",
@@ -52,25 +60,40 @@ func _ready() -> void:
 			),
 	)
 	
-	agent.add_sensor(sensor)
-	
+	var condition: GoapCondition = IsTypeGoapCondition.new(
+		"IsTroll", "Troll"
+	)
+
+	# Rule to check if Troll and set state to is frightened
 	var rule: GoapRule = GoapRule.new(
-		"Troll Proximity",
-		func(node): return node is Troll,
+		"Troll Nearby",
+		condition,
 		[GoapState.new(Goap.States.IS_FRIGHTENED, true)]
 	)
 	
 	sensor.add_rule(rule)
 	
+	#
+	# rule to check if Mushroom and set state to near food
+	#
+	condition = IsTypeGoapCondition.new(
+		"IsFood", "Mushroom"
+	)
+	
 	rule = GoapRule.new(
-		"Food Proximity",
-		func(node): return node is Mushroom,
+		"Food Nearby",
+		condition,
 		[GoapState.new(Goap.States.NEAR_FOOD, true)]
 	)
 	
 	sensor.add_rule(rule)
 	
-	sensor = AreaGoapSensor.new(
+	agent.add_sensor(sensor)
+
+	#
+	# Sensor to detect when leaving the detection_radius
+	#
+	sensor = NodeGoapSensor.new(
 		agent,
 		SignalConnection.new(
 			"body_exited",
@@ -78,27 +101,115 @@ func _ready() -> void:
 			),
 	)
 	
-	agent.add_sensor(sensor)
-	
+	#
+	# Uses IsFood condition and set state to not near food
+	#
 	rule = GoapRule.new(
-		"Food Proximity",
-		func(node): return node is Mushroom,
+		"No Food Nearby",
+		condition,
 		[GoapState.new(Goap.States.NEAR_FOOD, false)]
 	)
 	
 	sensor.add_rule(rule)
 	
-	agent.add_sensor(
-		GoapSensor.new(
-			agent,
-			SignalConnection.new(
-				"burn_time_changed",
-				null,
-				func(node): return node is Firepit
-			),
-			[GoapState.new(Goap.States.BURN_TIME, false)]
-		)
+	condition = IsTypeGoapCondition.new(
+		"IsTroll", "Troll"
 	)
+
+	# Rule to check if Troll and set state to no nearby enemy
+	rule = GoapRule.new(
+		"No Troll Nearby",
+		condition,
+		[GoapState.new(Goap.States.NEAR_ENEMY, false)]
+	)
+	
+	sensor.add_rule(rule)
+	
+	agent.add_sensor(sensor)
+	
+	#
+	# Sensor to check values on the Firepit countdown
+	#
+	sensor = ValueGoapSensor.new(
+		agent,
+		SignalConnection.new(
+			"burn_time_changed",
+			null,
+			func(node): return node is Firepit
+		),
+	)
+		
+	condition = ValueGoapCondition.new(
+		"LessThan3", 3, ValueGoapCondition.LESS_THAN_OR_EQUAL
+	)
+	
+	#
+	# Rule to check if less than 3 seconds left
+	# and set state to prepare wood
+	#
+	rule = GoapRule.new(
+		"Firepit Burn Time Low",
+		condition,
+		[GoapState.new(Goap.States.PREPARE_WOOD, true)]
+	)
+	
+	sensor.add_rule(rule)
+	
+	agent.add_sensor(sensor)
+	
+	#
+	# Sensor to detect when entering the close proximity Area2D
+	#
+	sensor = NodeGoapSensor.new(
+		agent,
+		SignalConnection.new(
+			"body_entered",
+			close_proxity_detector
+			),
+	)
+	
+	condition = IsTypeGoapCondition.new(
+		"IsTroll", "Troll"
+	)
+
+	# Rule to check if Troll and set state to nearby enemy
+	rule = GoapRule.new(
+		"Troll in Close Proximity",
+		condition,
+		[GoapState.new(Goap.States.NEAR_ENEMY, true)]
+	)
+	
+	sensor.add_rule(rule)
+	
+	agent.add_sensor(sensor)
+	
+	#
+	# Sensor to detect when leaving the close proximity Area2D
+	#
+	sensor = NodeGoapSensor.new(
+		agent,
+		SignalConnection.new(
+			"body_exited",
+			close_proxity_detector
+			),
+	)
+	
+	condition = IsTypeGoapCondition.new(
+		"IsFirepit", "Firepit"
+	)
+	
+	#
+	# Rule to check if Firepit and set state to not at firepit
+	#
+	rule = GoapRule.new(
+		"Not At Firepit",
+		condition,
+		[GoapState.new(Goap.States.AT_FIREPIT, false)]
+	)
+	
+	sensor.add_rule(rule)
+	
+	agent.add_sensor(sensor)
 	
 	# Get state indicator labels
 	for label in labels_container.get_children():
@@ -145,3 +256,12 @@ func _on_hunger_timer_timeout() -> void:
 			Goap.world_state.is_hungry = true
 		
 		Goap.world_state.hunger = hunger
+
+
+func _on_close_proxity_detector_body_entered(detected: Node2D) -> void:
+	# If there's a collision with the Troll move the bearing
+	if not detected is Troll:
+		return
+
+	var vector: Vector2 = global_position - body.global_position
+	rotation_anchor.rotation = fmod(vector.angle(), 2 * PI)
