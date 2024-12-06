@@ -1,5 +1,5 @@
 class_name Firepit
-extends Node2D
+extends StaticBody2D
 
 
 @onready var label: Label = %label
