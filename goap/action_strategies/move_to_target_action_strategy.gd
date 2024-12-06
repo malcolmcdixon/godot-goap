@@ -21,7 +21,7 @@ func _start(actor: Node) -> bool:
 	
 	self.context.target_object = SceneManager.get_closest_element(_target, actor)
 	
-	if not self.context.target_object:
+	if self.context.target_object == null:
 		return false
 
 	return true
