@@ -22,10 +22,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if self.position.distance_to(_target) > 1 :
 		var direction: Vector2 = self.position.direction_to(_target)
-		if direction.x > 0:
-			turn_right()
-		else:
-			turn_left()
+		body.flip_h = direction.x < 0
 
 	# warning-ignore:return_value_discarded
 		move_and_collide(direction * delta * 100)
@@ -44,19 +41,3 @@ func _on_rest_timer_timeout() -> void:
 	_pick_random_position()
 	body.play("run")
 	set_process(true)
-
-
-func turn_right() -> void:
-	if not body.flip_h:
-		return
-
-	body.flip_h = false
-	#$RayCast2D.target_position *= -1
-
-
-func turn_left() -> void:
-	if body.flip_h:
-		return
-
-	body.flip_h = true
-	#$RayCast2D.target_position *= -1
