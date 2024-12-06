@@ -1,5 +1,5 @@
-extends StaticBody2D
 class_name TreeToChop
+extends StaticBody2D
 
 
 @onready var chop_cooldown: Timer = %chop_cooldown
