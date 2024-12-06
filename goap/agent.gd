@@ -29,9 +29,7 @@ func init(actor: Node, goals: Array[GoapGoal]) -> void:
 
 # Connect to Goap state change signal
 #func _ready() -> void:
-	##Goap.world_state.changed.connect(_on_state_changed)
-	#for sensor in _sensors:
-		#sensor.connect_signal(self)
+	#Goap.world_state.changed.connect(_on_state_changed)
 
 
 #
@@ -75,19 +73,19 @@ func _make_plan(goal: GoapGoal) -> void:
 	_blackboard = StateManager.new(Goap.world_state.get_states())
 	_blackboard.position = _actor.position
 
-	var start_time: float = Time.get_ticks_usec()
+	#var start_time: float = Time.get_ticks_usec()
 
 	_current_plan = Goap.get_action_planner().get_plan(_current_goal, _blackboard)
 
-	prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
+	#prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
 
 	_current_plan_step = 0
 
 
 # Update the blackboard with the specific state change
 #func _on_state_changed(state_key: StringName, state_value: Variant) -> void:
-func _on_state_changed(state: GoapState) -> void:
-	_blackboard.update(state)
+#func _on_state_changed(state: GoapState) -> void:
+	#_blackboard.update(state)
 
 
 #
