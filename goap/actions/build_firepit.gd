@@ -11,6 +11,7 @@ func _init() -> void:
 
 	effects.append(GoapState.new(Goap.States.HAS_FIREPIT, true))
 	effects.append(GoapState.new(Goap.States.HAS_WOOD, false))
+	effects.append(GoapState.new(Goap.States.PREPARE_WOOD, false))
 
 	strategy = MultiActionStrategy.new(
 		[
