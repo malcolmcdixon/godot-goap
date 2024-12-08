@@ -19,3 +19,7 @@ mono_crash.*.json
 *~
 
 build/
+*.tmp
+
+# ignore addons
+addons/

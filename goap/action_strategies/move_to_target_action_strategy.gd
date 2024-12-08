@@ -1,18 +1,8 @@
-extends ActionStrategy
 class_name MoveToTargetActionStrategy
+extends ActionStrategy
 
 
-var _target_position: Vector2
-var target_position: Vector2:
-	get:
-		return _target_position
-		
 var _target: String
-var _target_object: Node
-var target_object: Node:
-	get:
-		return _target_object
-
 var _distance_offset: float = 10.0:
 	set(value):
 		# Ensure offset is 1.0 or above
@@ -29,25 +19,21 @@ func _start(actor: Node) -> bool:
 		push_error("MoveToTargetActionStrategy._start: 'target object' must be set")
 		return false
 	
-	_target_object = SceneManager.get_closest_element(_target, actor)
+	self.context.target_object = SceneManager.get_closest_element(_target, actor)
 	
-	if not _target_object:
+	if self.context.target_object == null:
 		return false
-	
-	_target_position = _target_object.position
-	
+
 	return true
 
 
 func _execute(actor: Node, delta: float) -> bool:
 	# Ensure target_position is set
-	if _target_position == null:
-		push_error("MoveToTargetActionStrategy.execute: '_target_position is null.")
-		return false
+	var target_position: Vector2 = self.context.target_object.position
 
-	if actor.position.distance_to(_target_position) < _distance_offset:
+	if actor.position.distance_to(target_position) < _distance_offset:
 		return true
 	
-	actor.move_to(actor.position.direction_to(_target_position), delta)
+	actor.move_to(actor.position.direction_to(target_position), delta)
 	
 	return false

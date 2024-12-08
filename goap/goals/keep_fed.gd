@@ -1,6 +1,5 @@
-extends GoapGoal
-
 class_name KeepFedGoal
+extends GoapGoal
 
 
 func _init() -> void:
@@ -9,11 +8,20 @@ func _init() -> void:
 
 func get_clazz(): return "KeepFedGoal"
 
-# This is not a valid goal when hunger is less than 50.
+
+#
+# This is a valid goal when hungry (hunger is > 50) and
+# there are food elements left
+#
 func is_valid() -> bool:
 	return Goap.world_state.is_hungry and \
 		SceneManager.get_elements("food").size() > 0
 
 
 func priority() -> int:
-	return 2 if Goap.world_state.hunger < 75 else 3
+	if Goap.world_state.is_hungry and Goap.world_state.near_food:
+		return 9
+	elif Goap.world_state.hunger < 75:
+		return 2
+	
+	return 3

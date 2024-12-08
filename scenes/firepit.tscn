@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://civweqo7663sk"]
+[gd_scene load_steps=9 format=3 uid="uid://civweqo7663sk"]
 
 [ext_resource type="Texture2D" uid="uid://26agy7ajjcgm" path="res://sprites/forestDecoration_0.png" id="1"]
 [ext_resource type="Script" path="res://scenes/firepit.gd" id="2"]
@@ -39,8 +39,13 @@ animations = [{
 "speed": 10.0
 }]
 
-[node name="firepit" type="Node2D" groups=["firepit"]]
+[sub_resource type="CircleShape2D" id="CircleShape2D_ht0ua"]
+radius = 8.0
+
+[node name="Firepit" type="StaticBody2D" groups=["firepit"]]
 texture_filter = 1
+collision_layer = 4
+collision_mask = 0
 script = ExtResource("2")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
@@ -60,3 +65,7 @@ offset_right = 21.0
 offset_bottom = -9.0
 text = "10"
 horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -6)
+shape = SubResource("CircleShape2D_ht0ua")

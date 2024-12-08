@@ -1,5 +1,5 @@
-extends RefCounted
 class_name GoapState
+extends RefCounted
 
 
 var _key: Goap.States

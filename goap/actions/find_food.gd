@@ -1,11 +1,23 @@
-extends GoapAction
-
 class_name FindFoodAction
+extends GoapAction
 
 
 func _init() -> void:
 	effects.append(GoapState.new(Goap.States.IS_HUNGRY, false))
-	strategy = MoveToTargetActionStrategy.new("food", 5.0)
+
+	strategy = MultiActionStrategy.new(
+		[
+			# Move to nearest food
+			MoveToTargetActionStrategy.new("food", 5.0),
+			# Pick up food
+			PickUpActionStrategy.new(null, true),
+			# Update hunger world state
+			DoActionStrategy.new(
+				func(): Goap.world_state.hunger -= \
+					strategy.context.target_object.nutrition
+			),
+		]
+	)
 
 
 func get_clazz(): return "FindFoodAction"
@@ -16,10 +28,4 @@ func get_cost(_blackboard) -> int:
 
 
 func perform(actor, delta) -> bool:
-	if strategy.execute(actor, delta):
-		var food = strategy.target_object
-		Goap.world_state.hunger -= food.nutrition
-		food.queue_free()
-		return true
-
-	return false
+	return strategy.execute(actor, delta)

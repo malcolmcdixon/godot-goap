@@ -24,6 +24,10 @@ enum States {
 	PROTECTED,
 	POSITION,
 	IS_STOCKPILING,
+	AT_FIREPIT,
+	NEAR_FOOD,
+	PREPARE_WOOD,
+	NEAR_ENEMY,
 }
 
 var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
@@ -32,24 +36,31 @@ var _action_planner: GoapActionPlanner =  GoapActionPlanner.new()
 var world_state: StateManager = StateManager.new(
 	[
 		GoapState.new(Goap.States.HAS_FIREPIT, false),
-		GoapState.new(Goap.States.HAS_WOOD, false),
-		GoapState.new(Goap.States.IS_STOCKPILING, false),
 		GoapState.new(Goap.States.IS_HUNGRY, false),
 		GoapState.new(Goap.States.HUNGER, 0),
+		GoapState.new(Goap.States.IS_FRIGHTENED, false),
+		GoapState.new(Goap.States.HAS_WOOD, false),
 		GoapState.new(Goap.States.PROTECTED, false),
+		GoapState.new(Goap.States.IS_STOCKPILING, false),
+		GoapState.new(Goap.States.AT_FIREPIT, false),
+		GoapState.new(Goap.States.NEAR_FOOD, false),
+		GoapState.new(Goap.States.PREPARE_WOOD, false),
+		GoapState.new(Goap.States.NEAR_ENEMY, false),
 	]
 )
 
 
 func _ready() -> void:
 	_action_planner.set_actions([
-		BuildFirepitAction.new("firepit_spot", 20.0),
+		BuildFirepitAction.new(),
 		ChopTreeAction.new(),
-		CollectFromWoodStockAction.new("wood_stock", 10.0),
+		CollectFromWoodStockAction.new(),
 		CalmDownAction.new(5.0),
 		FindCoverAction.new(),
 		FindFoodAction.new(),
-		AddToWoodStockAction.new("wood_stock_spot", 10.0),
+		AddToWoodStockAction.new(),
+		GoToFirepitAction.new(),
+		AvoidAction.new(),
 	])
 
 

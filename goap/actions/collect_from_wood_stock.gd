@@ -1,21 +1,33 @@
+class_name CollectFromWoodStockAction
 extends GoapAction
 
-class_name CollectFromWoodStockAction
+
+var WOOD_STOCK_SPOT: PackedScene = preload("res://scenes/wood_stock_spot.tscn")
 
 
-func _init(target: String, distance_offset: float) -> void:
+func _init() -> void:
 	preconditions.append(GoapState.new(Goap.States.HAS_WOOD, false))
 	preconditions.append(GoapState.new(Goap.States.IS_STOCKPILING, false))
+
 	effects.append(GoapState.new(Goap.States.HAS_WOOD, true))
-	strategy = MoveToTargetActionStrategy.new(target, distance_offset)
+
+	strategy = MultiActionStrategy.new(
+		[
+			# Move to nearest wood stock
+			MoveToTargetActionStrategy.new("wood_stock", 10.0),
+			# Pick up wood
+			PickUpActionStrategy.new(null, true),
+			# Add a marker for a place to put wood stock
+			PutDownActionStrategy.new(WOOD_STOCK_SPOT),
+		]
+	)
 
 
 func get_clazz(): return "CollectFromWoodStockAction"
 
 
 func is_valid() -> bool:
-	return SceneManager.get_elements("wood_stock").size() > 0 # and \
-		#not Goap.world_state.get_or_default(Goap.States.IS_STOCKPILING, false)
+	return SceneManager.get_elements("wood_stock").size() > 0
 
 
 func get_cost(blackboard) -> int:
@@ -26,13 +38,4 @@ func get_cost(blackboard) -> int:
 
 
 func perform(actor, delta) -> bool:
-	if strategy.execute(actor, delta):
-		# Add a marker for a place to put wood
-		var wood_stock_spot = Marker2D.new()
-		wood_stock_spot.position = strategy.target_position
-		wood_stock_spot.add_to_group("wood_stock_spot")
-		actor.get_parent().get_node("WoodStocks").add_child(wood_stock_spot)
-		strategy.target_object.queue_free()
-		return true
-
-	return false
+	return strategy.execute(actor, delta)

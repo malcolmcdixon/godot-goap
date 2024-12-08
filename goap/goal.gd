@@ -1,9 +1,8 @@
 #
 # Goal contract
 #
-extends Node
-
 class_name GoapGoal
+extends Node
 
 
 #

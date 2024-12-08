@@ -1,13 +1,14 @@
-extends GoapAction
-
 class_name CalmDownAction
+extends GoapAction
 
 
 func _init(duration: float) -> void:
 	preconditions.append(GoapState.new(Goap.States.PROTECTED, true))
+
 	effects.append(GoapState.new(Goap.States.IS_FRIGHTENED, false))
 	effects.append(GoapState.new(Goap.States.PROTECTED, false))
-	strategy = TimerActionStrategy.new(5.0)
+
+	strategy = TimerActionStrategy.new(duration)
 
 
 func get_clazz(): return "CalmDownAction"

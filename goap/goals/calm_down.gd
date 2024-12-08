@@ -1,6 +1,5 @@
-extends GoapGoal
-
 class_name CalmDownGoal
+extends GoapGoal
 
 
 func _init() -> void:
