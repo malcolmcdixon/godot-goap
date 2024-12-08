@@ -449,7 +449,6 @@ GoapRule o-- GoapCondition : condition
 GoapSensor o-- SignalConnection : connection
 NodeGoapSensor o-- SignalConnection : connection
 ValueGoapSensor o-- SignalConnection : connection
-GoapState o-- res://goap/goap.gd.States : key
 GoapStep o-- GoapAction : action
 Firepit o-- Label : label
 Firepit o-- Timer : timer
