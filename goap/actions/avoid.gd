@@ -7,7 +7,7 @@ func _init() -> void:
 
 	effects.append(GoapState.new(Goap.States.NEAR_ENEMY, false))
 
-	strategy = MoveToTargetActionStrategy.new("bearing", 1.0)
+	strategy = MoveToLocationActionStrategy.new("bearing")
 
 
 func get_clazz(): return "AvoidAction"
