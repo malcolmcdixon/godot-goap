@@ -112,19 +112,6 @@ func _ready() -> void:
 	
 	sensor.add_rule(rule)
 	
-	condition = IsTypeGoapCondition.new(
-		"IsTroll", "Troll"
-	)
-
-	# Rule to check if Troll and set state to no nearby enemy
-	rule = GoapRule.new(
-		"No Troll Nearby",
-		condition,
-		[GoapState.new(Goap.States.NEAR_ENEMY, false)]
-	)
-	
-	sensor.add_rule(rule)
-	
 	agent.add_sensor(sensor)
 	
 	#
@@ -263,5 +250,5 @@ func _on_close_proxity_detector_body_entered(detected: Node2D) -> void:
 	if not detected is Troll:
 		return
 
-	var vector: Vector2 = global_position - body.global_position
+	var vector: Vector2 = global_position - detected.global_position
 	rotation_anchor.rotation = fmod(vector.angle(), 2 * PI)
