@@ -458,8 +458,6 @@ NodeGoapSensor o-- SignalConnection : connection
 ValueGoapSensor o-- GoapAgent : _agent
 ValueGoapSensor o-- SignalConnection : _connection
 ValueGoapSensor o-- SignalConnection : connection
-GoapState o-- res://goap/goap.gd.States : _key
-GoapState o-- res://goap/goap.gd.States : key
 GoapStep o-- GoapAction : action
 satyr o-- GoapAgent : agent
 ```
