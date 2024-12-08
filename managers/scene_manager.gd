@@ -1,6 +1,10 @@
 extends Node
 
 
+func get_element(group_name: StringName) -> Node:
+	return self.get_tree().get_first_node_in_group(group_name)
+
+
 func get_elements(group_name: StringName) -> Array[Node]:
 	return self.get_tree().get_nodes_in_group(group_name)
 
