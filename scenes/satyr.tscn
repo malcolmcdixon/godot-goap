@@ -1,9 +1,8 @@
-[gd_scene load_steps=21 format=3 uid="uid://cr6noovmcl47a"]
+[gd_scene load_steps=20 format=3 uid="uid://cr6noovmcl47a"]
 
 [ext_resource type="Texture2D" uid="uid://cti7xghajrbgq" path="res://sprites/satyr_.png" id="1"]
 [ext_resource type="Script" path="res://scenes/satyr.gd" id="2"]
 [ext_resource type="Script" path="res://goap/agent.gd" id="3_21ph0"]
-[ext_resource type="Texture2D" uid="uid://dcbjq47b1fdrt" path="res://icon.png" id="4_1pi6l"]
 
 [sub_resource type="AtlasTexture" id="9"]
 atlas = ExtResource("1")
@@ -190,9 +189,5 @@ unique_name_in_owner = true
 [node name="AvoidBearing" type="Marker2D" parent="RotationAnchor" groups=["bearing"]]
 unique_name_in_owner = true
 position = Vector2(50, 0)
-
-[node name="Sprite2D" type="Sprite2D" parent="RotationAnchor/AvoidBearing"]
-scale = Vector2(0.1, 0.1)
-texture = ExtResource("4_1pi6l")
 
 [connection signal="body_entered" from="close_proxity_detector" to="." method="_on_close_proxity_detector_body_entered"]
