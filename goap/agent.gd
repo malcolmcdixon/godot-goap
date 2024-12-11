@@ -16,7 +16,8 @@ var _current_plan: GoapPlan
 var _current_plan_step: int = 0
 
 var _actor: Node
-var _agent_state: StateManager
+var _agent_state: StateManager = StateManager.new()
+var _blackboard: StateManager
 var _sensors: Array[GoapSensor]
 
 
@@ -67,15 +68,17 @@ func _make_plan(goal: GoapGoal) -> void:
 	# Goal specific states
 	Goap.world_state.is_stockpiling = goal is KeepWoodStockedGoal
 	
-	# You can set in the blackboard any relevant information you want to use
-	# when calculating action costs and status. I'm not sure here is the best
-	# place to leave it, but I kept here to keep things simple.
-	_agent_state = StateManager.new(Goap.world_state.get_states())
+	# The blackboard is the combination of the world_state and the agent_state
 	_agent_state.position = _actor.position
+	var combined_states: Array[GoapState] = _agent_state.get_states()
+	combined_states.append_array(Goap.world_state.get_states())
+	_blackboard = StateManager.new(combined_states)
+		
+	#_agent_state = StateManager.new(Goap.world_state.get_states())
 
 	#var start_time: float = Time.get_ticks_usec()
 
-	_current_plan = Goap.get_action_planner().get_plan(_current_goal, _agent_state)
+	_current_plan = Goap.get_action_planner().get_plan(_current_goal, _blackboard)
 
 	#prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
 
