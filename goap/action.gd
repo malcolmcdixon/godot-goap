@@ -63,8 +63,3 @@ func get_cost(_blackboard) -> int:
 #
 func perform(_actor, _delta) -> bool:
 	return false
-
-
-#func apply_effects(states :StateManager) -> void:
-	#for effect in effects:
-		#states.update(effect.copy())

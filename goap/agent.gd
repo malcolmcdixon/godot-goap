@@ -16,6 +16,7 @@ var _current_plan: GoapPlan
 var _current_plan_step: int = 0
 
 var _actor: Node
+var _agent_state: StateManager = StateManager.new()
 var _blackboard: StateManager
 var _sensors: Array[GoapSensor]
 
@@ -67,11 +68,13 @@ func _make_plan(goal: GoapGoal) -> void:
 	# Goal specific states
 	Goap.world_state.is_stockpiling = goal is KeepWoodStockedGoal
 	
-	# You can set in the blackboard any relevant information you want to use
-	# when calculating action costs and status. I'm not sure here is the best
-	# place to leave it, but I kept here to keep things simple.
-	_blackboard = StateManager.new(Goap.world_state.get_states())
-	_blackboard.position = _actor.position
+	# The blackboard is the combination of the world_state and the agent_state
+	_agent_state.position = _actor.position
+	var combined_states: Array[GoapState] = _agent_state.get_states()
+	combined_states.append_array(Goap.world_state.get_states())
+	_blackboard = StateManager.new(combined_states)
+		
+	#_agent_state = StateManager.new(Goap.world_state.get_states())
 
 	#var start_time: float = Time.get_ticks_usec()
 
@@ -85,7 +88,7 @@ func _make_plan(goal: GoapGoal) -> void:
 # Update the blackboard with the specific state change
 #func _on_state_changed(state_key: StringName, state_value: Variant) -> void:
 #func _on_state_changed(state: GoapState) -> void:
-	#_blackboard.update(state)
+	#_agent_state.update(state)
 
 
 #
@@ -122,7 +125,6 @@ func _follow_plan(plan: GoapPlan, delta: float) -> void:
 
 	if is_step_complete:
 		# Apply action's effects to world state
-		#action.apply_effects(Goap.world_state)
 		Goap.world_state.apply_effects(action.effects)
 
 		var last_step: int = plan.steps.size() - 1
