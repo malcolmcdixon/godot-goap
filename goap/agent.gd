@@ -16,7 +16,7 @@ var _current_plan: GoapPlan
 var _current_plan_step: int = 0
 
 var _actor: Node
-var _blackboard: StateManager
+var _agent_state: StateManager
 var _sensors: Array[GoapSensor]
 
 
@@ -70,12 +70,12 @@ func _make_plan(goal: GoapGoal) -> void:
 	# You can set in the blackboard any relevant information you want to use
 	# when calculating action costs and status. I'm not sure here is the best
 	# place to leave it, but I kept here to keep things simple.
-	_blackboard = StateManager.new(Goap.world_state.get_states())
-	_blackboard.position = _actor.position
+	_agent_state = StateManager.new(Goap.world_state.get_states())
+	_agent_state.position = _actor.position
 
 	#var start_time: float = Time.get_ticks_usec()
 
-	_current_plan = Goap.get_action_planner().get_plan(_current_goal, _blackboard)
+	_current_plan = Goap.get_action_planner().get_plan(_current_goal, _agent_state)
 
 	#prints("Time Elapsed for planning goal:", Time.get_ticks_usec() - start_time)
 
@@ -85,7 +85,7 @@ func _make_plan(goal: GoapGoal) -> void:
 # Update the blackboard with the specific state change
 #func _on_state_changed(state_key: StringName, state_value: Variant) -> void:
 #func _on_state_changed(state: GoapState) -> void:
-	#_blackboard.update(state)
+	#_agent_state.update(state)
 
 
 #
