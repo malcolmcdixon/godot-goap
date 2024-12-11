@@ -125,7 +125,6 @@ func _follow_plan(plan: GoapPlan, delta: float) -> void:
 
 	if is_step_complete:
 		# Apply action's effects to world state
-		#action.apply_effects(Goap.world_state)
 		Goap.world_state.apply_effects(action.effects)
 
 		var last_step: int = plan.steps.size() - 1
